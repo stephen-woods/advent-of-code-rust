@@ -6,11 +6,12 @@ const INPUT_A: &str = indoc!{r#"
 
 
 pub fn run() {
+    println!("--- Day 1: Not Quite Lisp ---");
     let floor = part_a();
-    println!("To what floor do the instructions take Santa? {}", floor);
+    println!("To what floor do the instructions take Santa?\n {}", floor);
 
     let position = part_b();
-    println!("What is the position of the character that causes Santa to first enter the basement? {}", position);
+    println!("What is the position of the character that causes Santa to first enter the basement?\n {}", position);
 }
 
 
