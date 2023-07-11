@@ -6,31 +6,96 @@ pub fn run() {
 
     let answer_a = part_a();
     println!("How many total square feet of wrapping paper should they order?\n {}", answer_a);
+
+    let answer_b = part_b();
+    println!("How many total feet of ribbon should they order?\n {}", answer_b);
 }
 
 fn part_a() -> u32 {
-    let mut total_square_feet = 0;
-    let lines = INPUT_A.split("\n");
-    for line in lines {
-        let dims: Vec<&str> = line.split("x").collect();
-        let length: u32 = dims[0].parse().unwrap();
-        let width: u32 = dims[1].parse().unwrap();
-        let height: u32 = dims[2].parse().unwrap();
-
-        let lw = length * width;
-        let wh = width * height;
-        let hl = height * length;
-
-        let extra = cmp::min(lw, cmp::min(wh, hl));
-
-        let sf = 2 *lw + 2 * wh + 2 *hl + extra;
-        total_square_feet += sf
+    let mut ret = 0;
+    let presents = Present::all();
+    for present in presents {
+        let sf = present.surface_area() + present.extra();
+        ret += sf
     }
-
-    return total_square_feet;
+    ret
 }
 
-const INPUT_A: &str = indoc! {r#"4x23x21
+fn part_b() -> u32 {
+    let mut ret = 0;
+    let presents = Present::all();
+    for present in presents {
+        let ribbon = present.ribbon_to_wrap() + present.ribbon_for_bow();
+        ret += ribbon
+    }
+    ret
+}
+
+struct Present {
+    length: u32,
+    width: u32,
+    height: u32,
+}
+
+impl Present {
+    fn new(length: u32, width: u32, height: u32) -> Present {
+        Present {
+            length,
+            width,
+            height,
+        }
+    }
+
+    fn all() -> Vec<Present> {
+        let mut presents: Vec<Present> = vec![];
+        let lines = INPUT_A.split("\n");
+        for line in lines {
+            let dims: Vec<&str> = line.split("x").collect();
+            let present = Present::new(
+                dims[0].parse().unwrap(),
+                dims[1].parse().unwrap(),
+                dims[2].parse().unwrap(),
+            );
+            presents.push(present);
+        }
+        presents
+    }
+
+    fn surface_area(&self) -> u32 {
+        2 * self.get_lw() + 2 * self.get_wh() + 2 * self.get_lh()
+    }
+
+    fn extra(&self) -> u32 {
+        let min = cmp::min(self.get_lw(), self.get_wh());
+        let min = cmp::min(self.get_lh(), min);
+        min
+    }
+
+    fn get_lw(&self) -> u32 {
+        self.length * self.width
+    }
+
+    fn get_wh(&self) -> u32 {
+        self.width * self.height
+    }
+
+    fn get_lh(&self) -> u32 {
+        self.length * self.height
+    }
+
+    fn ribbon_to_wrap(&self) -> u32 {
+        let mut dims = [self.length, self.width, self.height];
+        dims.sort();
+        2 * dims[0] + 2 * dims[1]
+    }
+
+    fn ribbon_for_bow(&self) -> u32 {
+        self.length * self.width* self.height
+    }
+}
+
+const INPUT_A: &str = indoc! {r#"
+4x23x21
 22x29x19
 11x4x11
 8x10x5
