@@ -1,4 +1,5 @@
 use indoc::indoc;
+use std::cmp;
 
 pub fn run() {
     println!("--- Day 2: I Was Told There Would Be No Math ---");
@@ -7,13 +8,29 @@ pub fn run() {
     println!("How many total square feet of wrapping paper should they order?\n {}", answer_a);
 }
 
-fn part_a() -> i32 {
-    // FIXME This is wrong
-    return INPUT_A.len() as i32;
+fn part_a() -> u32 {
+    let mut total_square_feet = 0;
+    let lines = INPUT_A.split("\n");
+    for line in lines {
+        let dims: Vec<&str> = line.split("x").collect();
+        let length: u32 = dims[0].parse().unwrap();
+        let width: u32 = dims[1].parse().unwrap();
+        let height: u32 = dims[2].parse().unwrap();
+
+        let lw = length * width;
+        let wh = width * height;
+        let hl = height * length;
+
+        let extra = cmp::min(lw, cmp::min(wh, hl));
+
+        let sf = 2 *lw + 2 * wh + 2 *hl + extra;
+        total_square_feet += sf
+    }
+
+    return total_square_feet;
 }
 
-const INPUT_A: &str = indoc!{r#"
-4x23x21
+const INPUT_A: &str = indoc! {r#"4x23x21
 22x29x19
 11x4x11
 8x10x5
@@ -1012,5 +1029,4 @@ const INPUT_A: &str = indoc!{r#"
 10x15x23
 21x29x14
 20x29x30
-23x11x5
-"#};
+23x11x5"#};
