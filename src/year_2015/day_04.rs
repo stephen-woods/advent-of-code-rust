@@ -1,4 +1,5 @@
-use std::borrow::ToOwned;
+use crypto::digest::Digest;
+use crypto::md5::Md5;
 
 pub fn run() {
     println!("--- Day 4: The Ideal Stocking Stuffer ---");
@@ -21,13 +22,15 @@ fn part_b() -> u64 {
 fn mine(prefix: &str) -> u64 {
     let mut found = false;
     let mut x: u64 = 0;
+    let mut md5 = Md5::new();
     while !found {
+        md5.reset();
         x += 1;
-        let key = INPUT_A.to_owned() + format!("{}", x).as_str();
-        let digest = md5::compute(key);
-        let hash = format!("{:x}", digest);
 
-        found = hash.starts_with(prefix);
+        let key = format!("{}{}", INPUT_A, x);
+        md5.input_str(key.as_str());
+        let result = md5.result_str();
+        found = result.starts_with(prefix);
     }
     return x
 }

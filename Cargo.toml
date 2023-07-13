@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 frunk = "0.4.2"
 indoc = "2"
-md5 = "0.7.0"
+rust-crypto = "0.2.36"
