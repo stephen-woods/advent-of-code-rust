@@ -1,14 +1,19 @@
 use indoc::indoc;
 use std::cmp;
+use std::time::SystemTime;
 
 pub fn run() {
     println!("--- Day 2: I Was Told There Would Be No Math ---");
 
+    let now = SystemTime::now();
     let answer_a = part_a();
-    println!("How many total square feet of wrapping paper should they order?\n {}", answer_a);
+    let duration = now.elapsed().expect("Elapsed failed");
+    println!("How many total square feet of wrapping paper should they order?\n {}\n in {}ns", answer_a, duration.as_nanos());
 
+    let now = SystemTime::now();
     let answer_b = part_b();
-    println!("How many total feet of ribbon should they order?\n {}", answer_b);
+    let duration = now.elapsed().expect("Elapsed failed");
+    println!("How many total feet of ribbon should they order?\n {}\n in {}ns", answer_b, duration.as_nanos());
 }
 
 fn part_a() -> u32 {

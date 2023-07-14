@@ -1,13 +1,18 @@
 use indoc::indoc;
-
+use std::time::SystemTime;
 
 pub fn run() {
     println!("--- Day 1: Not Quite Lisp ---");
-    let floor = part_a();
-    println!("To what floor do the instructions take Santa?\n {}", floor);
 
-    let position = part_b();
-    println!("What is the position of the character that causes Santa to first enter the basement?\n {}", position);
+    let now = SystemTime::now();
+    let answer_a = part_a();
+    let duration = now.elapsed().expect("Elapsed failed");
+    println!("To what floor do the instructions take Santa?\n {}\n in {}ns", answer_a, duration.as_nanos());
+
+    let now = SystemTime::now();
+    let answer_b = part_b();
+    let duration = now.elapsed().expect("Elapsed failed");
+    println!("What is the position of the character that causes Santa to first enter the basement?\n {}\n in {}ns", answer_b, duration.as_nanos());
 }
 
 

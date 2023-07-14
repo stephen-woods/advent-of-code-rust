@@ -1,15 +1,20 @@
 use indoc::indoc;
 use std::collections::HashMap;
 use std::clone::Clone;
+use std::time::SystemTime;
 
 pub fn run() {
     println!("--- Day 3: Perfectly Spherical Houses in a Vacuum ---");
 
+    let now = SystemTime::now();
     let answer_a = part_a();
-    println!("How many houses receive at least one present?\n {}", answer_a);
+    let duration = now.elapsed().expect("Elapsed failed");
+    println!("How many houses receive at least one present?\n {}\n in {}ns", answer_a, duration.as_nanos());
 
+    let now = SystemTime::now();
     let answer_b = part_b();
-    println!("This year, how many houses receive at least one present?\n {}", answer_b);
+    let duration = now.elapsed().expect("Elapsed failed");
+    println!("This year, how many houses receive at least one present?\n {}\n in {}ns", answer_b, duration.as_nanos());
 }
 
 fn part_a() -> u32 {

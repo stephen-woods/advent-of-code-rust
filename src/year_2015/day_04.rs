@@ -1,14 +1,23 @@
 use crypto::digest::Digest;
 use crypto::md5::Md5;
+use std::time::SystemTime;
 
 pub fn run() {
     println!("--- Day 4: The Ideal Stocking Stuffer ---");
 
+    let now = SystemTime::now();
     let answer_a = part_a();
-    println!("To mine AdventCoins, you must find Santa the lowest positive number (no leading zeroes: 1, 2, 3, ...) that produces such a hash.\n {}", answer_a);
+    let duration = now.elapsed().expect("Elapsed failed");
+    println!("To mine AdventCoins, you must find Santa the lowest positive number (no leading zeroes: 1, 2, 3, ...) that produces such a hash.");
+    println!(" {}", answer_a);
+    println!(" in {}ms", duration.as_millis());
 
+    let now = SystemTime::now();
     let answer_b = part_b();
-    println!("Now find one that starts with six zeroes.\n {}", answer_b);
+    let duration = now.elapsed().expect("Elapsed failed");
+    println!("Now find one that starts with six zeroes.");
+    println!(" {}", answer_b);
+    println!(" in {}ms", duration.as_millis());
 }
 
 fn part_a() -> u64 {
