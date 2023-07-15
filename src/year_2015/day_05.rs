@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::time::SystemTime;
 use indoc::indoc;
 
@@ -16,7 +17,7 @@ pub fn run() {
     let duration = now.elapsed().expect("Elapsed failed");
     println!("How many strings are nice under these new rules?");
     println!(" {}", answer_b);
-    println!(" in {}ms", duration.as_millis());
+    println!(" in {}ns", duration.as_nanos());
 }
 
 fn part_a() -> u32 {
@@ -30,18 +31,22 @@ fn part_a() -> u32 {
 }
 
 fn part_b() -> u32 {
-    3
+    let mut count: u32 = 0;
+    for line in INPUT_A.lines() {
+        if nice_str_b(line) {
+            count += 1
+        }
+    }
+    count
 }
 
 
-
 fn nice_str_a(s: &str) -> bool {
-
     fn contains_vowels(s: &str, num: u32) -> bool {
         let mut i: u32 = 0;
         for c in s.chars() {
             match c {
-                'a'|'e'|'i'|'o'|'u' => i += 1,
+                'a' | 'e' | 'i' | 'o' | 'u' => i += 1,
                 _ => ()
             }
             if i >= num {
@@ -58,7 +63,6 @@ fn nice_str_a(s: &str) -> bool {
                 return true;
             }
         }
-
         false
     }
 
@@ -72,12 +76,45 @@ fn nice_str_a(s: &str) -> bool {
     }
 
     let must_nots = ["ab", "cd", "pq", "xy"];
-    contains_vowels(s,3) && contains_doubles(s) && !contains_any_substring(s, &must_nots)
+    contains_vowels(s, 3) && contains_doubles(s) && !contains_any_substring(s, &must_nots)
 }
 
 
+fn nice_str_b(s: &str) -> bool {
+    fn pair_not_overlapping(s: &str) -> bool {
+        let mut ret = false;
+        let mut map: HashMap<[u8; 2], usize> = HashMap::new();
+        let windows = s.as_bytes().windows(2);
+        for (i, window) in windows.enumerate() {
+            let key = [window[0], window[1]];
+            match map.get(&key) {
+                Some(&first) => {
+                    if i >= first {
+                        ret = true;
+                        break;
+                    }
+                }
+                None => {
+                    map.insert(key, i + 2);
+                }
+            }
+        }
+        ret
+    }
 
-
+    fn pair_diff_inbetween(s: &str) -> bool {
+        let mut ret = false;
+        let windows = s.as_bytes().windows(3);
+        for window in windows {
+            if window[0] == window[2] {
+                ret = true;
+                break;
+            }
+        }
+        ret
+    }
+    pair_not_overlapping(s) && pair_diff_inbetween(s)
+}
 
 
 const INPUT_A: &str = indoc! {r#"
