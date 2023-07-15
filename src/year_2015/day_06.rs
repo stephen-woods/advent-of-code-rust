@@ -15,9 +15,9 @@ pub fn run() {
     let now = SystemTime::now();
     let answer_b = part_b();
     let duration = now.elapsed().expect("Elapsed failed");
-    println!("something?");
+    println!("What is the total brightness of all lights combined after following Santa's instructions?");
     println!(" {}", answer_b);
-    println!(" in {}ns", duration.as_nanos());
+    println!(" in {}ms", duration.as_millis());
 }
 
 fn part_a() -> usize {
@@ -31,7 +31,13 @@ fn part_a() -> usize {
 }
 
 fn part_b() -> u32 {
-    3
+    let mut grid = Grid2::new();
+
+    for line in INPUT_A.lines() {
+        let instruction = parse_input_line(line);
+        grid.execute(&instruction);
+    }
+    grid.total_brightness()
 }
 
 
@@ -77,7 +83,7 @@ impl Instruction {
 
 
 struct Grid {
-    grid: [bool; 1000 * 1000],
+    grid: [bool; 1000 * 1000]
 }
 
 impl Grid {
@@ -86,6 +92,7 @@ impl Grid {
             grid: [false; 1000 * 1000]
         }
     }
+
     fn execute(&mut self, instruction: &Instruction) {
         match instruction.command {
             Command::On => {
@@ -121,6 +128,54 @@ impl Grid {
             }
         }
         num_on
+    }
+}
+
+
+struct Grid2 {
+    grid: [u32; 1000 * 1000],
+}
+
+impl Grid2 {
+    fn new() -> Grid2 {
+        Grid2 {
+            grid: [0; 1000 * 1000]
+        }
+    }
+
+    fn execute(&mut self, instruction: &Instruction) {
+        match instruction.command {
+            Command::On => {
+                for x in instruction.sx..instruction.ex + 1 {
+                    for y in instruction.sy..instruction.ey + 1 {
+                        let val = self.grid[1000 * y + x];
+                        self.grid[1000 * y + x] = val + 1;
+                    }
+                }
+            }
+            Command::Off => {
+                for x in instruction.sx..instruction.ex + 1 {
+                    for y in instruction.sy..instruction.ey + 1 {
+                        let val = self.grid[1000 * y + x];
+                        if val != 0 {
+                            self.grid[1000 * y + x] = val - 1;
+                        }
+                    }
+                }
+            }
+            Command::Toggle => {
+                for x in instruction.sx..instruction.ex + 1 {
+                    for y in instruction.sy..instruction.ey + 1 {
+                        let val = self.grid[1000 * y + x];
+                        self.grid[1000 * y + x] = val + 2;
+                    }
+                }
+            }
+        }
+    }
+
+    fn total_brightness(&self) -> u32 {
+        self.grid.iter().sum()
     }
 }
 
