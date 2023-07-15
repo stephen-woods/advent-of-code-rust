@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 frunk = "0.4.2"
 indoc = "2"
-rust-crypto = "0.2.36"
+md-5 = "0.10.5"
 regex = "1.9.1"

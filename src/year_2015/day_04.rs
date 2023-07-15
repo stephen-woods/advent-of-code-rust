@@ -1,5 +1,4 @@
-use crypto::digest::Digest;
-use crypto::md5::Md5;
+use md5::{Md5, Digest};
 use std::time::SystemTime;
 
 pub fn run() {
@@ -31,14 +30,14 @@ fn part_b() -> u64 {
 fn mine(prefix: &str) -> u64 {
     let mut found = false;
     let mut x: u64 = 0;
-    let mut md5 = Md5::new();
     while !found {
-        md5.reset();
         x += 1;
 
         let key = format!("{}{}", INPUT_A, x);
-        md5.input_str(key.as_str());
-        let result = md5.result_str();
+        let mut hasher = Md5::new();
+        hasher.update(key);
+        let result_as_bytes = hasher.finalize();
+        let result = format!("{:x}", result_as_bytes);
         found = result.starts_with(prefix);
     }
     return x
