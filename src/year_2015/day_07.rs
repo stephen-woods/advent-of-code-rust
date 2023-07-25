@@ -16,26 +16,115 @@ pub fn run() {
     let now = SystemTime::now();
     let answer_b = part_b();
     let duration = now.elapsed().expect("Elapsed failed");
-    println!("huh?");
+    println!("Now, take the signal you got on wire a, override wire b to that signal, and reset the other wires (including wire a). What new signal is ultimately provided to wire a?");
     println!(" {}", answer_b);
     println!(" in {}ms", duration.as_millis());
 }
 
-fn part_a() -> usize {
+
+fn part_a() -> u16 {
     let dr = DayRegex::init();
 
-    let mut map: HashMap<String, Gate> = HashMap::new();
+    let mut input_map: HashMap<String, Gate> = HashMap::new();
     for line in INPUT_A.lines() {
         if let Some((k, g)) = Gate::from(line, &dr) {
-            map.insert(k, g);
+            input_map.insert(k, g);
         }
     }
-    map.len()
+
+    let mut eval_map : HashMap<String, u16> = HashMap::new();
+    let wire = "a";
+    solve(&input_map, &mut eval_map, wire);
+    let p_answer = eval_map.get(wire).unwrap();
+    *p_answer
 }
 
-fn part_b() -> u32 {
-    3
+
+fn part_b() -> u16 {
+    let dr = DayRegex::init();
+
+    let mut input_map: HashMap<String, Gate> = HashMap::new();
+    for line in INPUT_A.lines() {
+        if let Some((k, g)) = Gate::from(line, &dr) {
+            input_map.insert(k, g);
+        }
+    }
+
+    let mut eval_map : HashMap<String, u16> = HashMap::new();
+    solve(&input_map, &mut eval_map, "a");
+    let a_answer = *(eval_map.get("a").unwrap());
+
+    // Now create a new B value based on what A is. Override the input map with the new value
+    // for B, clear the eval map and solve again for a
+    let new_b = Gate::Value(a_answer);
+    input_map.insert(String::from("b"), new_b);
+    eval_map.clear();
+    
+    solve(&input_map, &mut eval_map, "a");
+     *(eval_map.get("a").unwrap())
 }
+
+
+fn solve(input_map: &HashMap<String, Gate>,
+         eval_map: &mut HashMap<String, u16>,
+         wire: &str) {
+
+    if !eval_map.contains_key(wire) {
+        let gate = input_map.get(wire).unwrap_or_else(||panic!("Missing gate for wire: {wire}"));
+        match gate {
+            Gate::Value(v) => {
+                eval_map.insert(wire.to_string(), *v);
+            }
+            Gate::Wire(wire_a) => {
+                solve(input_map, eval_map, wire_a);
+                let v = *(eval_map.get(wire_a).unwrap());
+                eval_map.insert(wire.to_string(), v);
+            }
+            Gate::And(wire_a, wire_b) => {
+                let v_a = lit_or_solve(input_map, eval_map, wire_a);
+                let v_b = lit_or_solve(input_map, eval_map, wire_b);
+                let v = v_a & v_b;
+                eval_map.insert(wire.to_string(), v);
+            }
+            Gate::Or(wire_a, wire_b) => {
+                let v_a = lit_or_solve(input_map, eval_map, wire_a);
+                let v_b = lit_or_solve(input_map, eval_map, wire_b);
+                let v = v_a | v_b;
+                eval_map.insert(wire.to_string(), v);
+            }
+            Gate::LShift(wire_a, shift) => {
+                let v_a = lit_or_solve(input_map, eval_map, wire_a);
+                let v = v_a << shift;
+                eval_map.insert(wire.to_string(), v);
+            }
+            Gate::RShift(wire_a, shift) => {
+                let v_a = lit_or_solve(input_map, eval_map, wire_a);
+                let v = v_a >> shift;
+                eval_map.insert(wire.to_string(), v);
+            }
+            Gate::Not(wire_a) => {
+                let v_a = lit_or_solve(input_map, eval_map, wire_a);
+                let v = !v_a;
+                eval_map.insert(wire.to_string(), v);
+            }
+        };
+    }
+}
+
+
+fn lit_or_solve(input_map: &HashMap<String, Gate>,
+                eval_map: &mut HashMap<String, u16>,
+                wire: &str) -> u16 {
+    // Literal value or solve
+    match wire.parse::<u16>() {
+        Ok(literal) => literal,
+        Err(_) => {
+            solve(input_map, eval_map, wire);
+            *(eval_map.get(wire).unwrap())
+        }
+    }
+}
+
 
 #[derive(Debug)]
 enum Gate {
@@ -86,13 +175,13 @@ struct DayRegex {
 impl DayRegex {
     fn init() -> DayRegex {
         DayRegex {
-            value: Regex::new(r"(?<value>[0-9]+) -> (?<key>[a-z]+)").unwrap(), // 123 -> x
-            wire: Regex::new(r"(?<wire>[a-z]+) -> (?<key>[a-z]+)").unwrap(), // y -> x
-            and: Regex::new(r"(?<wire_a>[a-z]+) AND (?<wire_b>[a-z]+) -> (?<key>[a-z]+)").unwrap(), // lf AND lq -> ls
-            or: Regex::new(r"(?<wire_a>[a-z]+) OR (?<wire_b>[a-z]+) -> (?<key>[a-z]+)").unwrap(), // kl OR kr -> ks
-            lshift: Regex::new(r"(?<wire>[a-z]+) LSHIFT (?<value>[0-9]+) -> (?<key>[a-z]+)").unwrap(), // fj LSHIFT 15 -> fn
-            rshift: Regex::new(r"(?<wire>[a-z]+) RSHIFT (?<value>[0-9]+) -> (?<key>[a-z]+)").unwrap(), // fj RSHIFT 15 -> fn
-            not: Regex::new(r"NOT (?<wire>[a-z]+) -> (?<key>[a-z]+)").unwrap(),
+            value: Regex::new(r"^(?<value>[0-9]+) -> (?<key>[a-z]+)$").unwrap(), // 123 -> x
+            wire: Regex::new(r"^(?<wire>[a-z]+) -> (?<key>[a-z]+)$").unwrap(), // y -> x
+            and: Regex::new(r"^(?<wire_a>[0-9a-z]+) AND (?<wire_b>[0-9a-z]+) -> (?<key>[a-z]+)$").unwrap(), // lf AND lq -> ls
+            or: Regex::new(r"^(?<wire_a>[0-9a-z]+) OR (?<wire_b>[0-9a-z]+) -> (?<key>[a-z]+)$").unwrap(), // kl OR kr -> ks
+            lshift: Regex::new(r"^(?<wire>[a-z]+) LSHIFT (?<value>[0-9]+) -> (?<key>[a-z]+)$").unwrap(), // fj LSHIFT 15 -> fn
+            rshift: Regex::new(r"^(?<wire>[a-z]+) RSHIFT (?<value>[0-9]+) -> (?<key>[a-z]+)$").unwrap(), // fj RSHIFT 15 -> fn
+            not: Regex::new(r"^NOT (?<wire>[a-z]+) -> (?<key>[a-z]+)$").unwrap(),
         }
     }
 
