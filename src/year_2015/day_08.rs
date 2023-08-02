@@ -1,7 +1,5 @@
 use indoc::indoc;
-//use regex::Regex;
 use std::time::SystemTime;
-//use std::collections::HashMap;
 
 pub fn run() {
     println!("--- Day 8: Matchsticks ---");
