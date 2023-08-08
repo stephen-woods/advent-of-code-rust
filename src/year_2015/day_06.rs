@@ -83,13 +83,13 @@ impl Instruction {
 
 
 struct Grid {
-    grid: [bool; 1000 * 1000]
+    grid: Vec<bool>
 }
 
 impl Grid {
     fn new() -> Grid {
         Grid {
-            grid: [false; 1000 * 1000]
+            grid: vec![false; 1000*1000]
         }
     }
 
@@ -122,8 +122,8 @@ impl Grid {
 
     fn num_on(&self) -> usize {
         let mut num_on: usize = 0;
-        for is_on in self.grid {
-            if is_on {
+        for is_on in self.grid.iter() {
+            if *is_on {
                 num_on += 1
             }
         }
