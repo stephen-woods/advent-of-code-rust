@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "cargo",
+            "name": "Cargo Run 2015",
+            "cargoExtraArgs": ["run"],
+            "executableArgs": ["2015","10"],
+        },
+        
+    ]
+}
