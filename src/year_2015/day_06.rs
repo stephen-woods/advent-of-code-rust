@@ -193,28 +193,31 @@ impl Grid2 {
     fn execute(&mut self, instruction: &Instruction) {
         match instruction.command {
             Command::On => {
-                for x in instruction.sx..instruction.ex + 1 {
-                    for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid.get_mut(x).unwrap().get_mut(y).unwrap();
-                        *val += 1;
+                let slicey = &mut self.grid[instruction.sy..instruction.ey + 1];
+                for y in slicey {
+                    let slicex = &mut y[instruction.sx..instruction.ex + 1];
+                    for x in slicex {
+                        *x += 1;
                     }
                 }
             }
             Command::Off => {
-                for x in instruction.sx..instruction.ex + 1 {
-                    for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid.get_mut(x).unwrap().get_mut(y).unwrap();
-                        if *val != 0 {
-                            *val -= 1;
+                let slicey = &mut self.grid[instruction.sy..instruction.ey + 1];
+                for y in slicey {
+                    let slicex = &mut y[instruction.sx..instruction.ex + 1];
+                    for x in slicex {
+                        if *x != 0 {
+                            *x -= 1;
                         }
                     }
                 }
             }
             Command::Toggle => {
-                for x in instruction.sx..instruction.ex + 1 {
-                    for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid.get_mut(x).unwrap().get_mut(y).unwrap();
-                        *val += 2;
+                let slicey = &mut self.grid[instruction.sy..instruction.ey + 1];
+                for y in slicey {
+                    let slicex = &mut y[instruction.sx..instruction.ex + 1];
+                    for x in slicex {
+                        *x += 2;
                     }
                 }
             }
