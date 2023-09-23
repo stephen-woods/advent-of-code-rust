@@ -195,7 +195,7 @@ impl Grid2 {
             Command::On => {
                 for x in instruction.sx..instruction.ex + 1 {
                     for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid.get_mut(y).unwrap().get_mut(x).unwrap();
+                        let val = self.grid.get_mut(x).unwrap().get_mut(y).unwrap();
                         *val += 1;
                     }
                 }
@@ -203,7 +203,7 @@ impl Grid2 {
             Command::Off => {
                 for x in instruction.sx..instruction.ex + 1 {
                     for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid.get_mut(y).unwrap().get_mut(x).unwrap();
+                        let val = self.grid.get_mut(x).unwrap().get_mut(y).unwrap();
                         if *val != 0 {
                             *val -= 1;
                         }
@@ -213,7 +213,7 @@ impl Grid2 {
             Command::Toggle => {
                 for x in instruction.sx..instruction.ex + 1 {
                     for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid.get_mut(y).unwrap().get_mut(x).unwrap();
+                        let val = self.grid.get_mut(x).unwrap().get_mut(y).unwrap();
                         *val += 2;
                     }
                 }
