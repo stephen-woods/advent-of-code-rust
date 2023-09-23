@@ -1169,3 +1169,15 @@ bzukgvyoqewniivj
 iduapzclhhyfladn
 fbpyzxdfmkrtfaeg
 yzsmlbnftftgwadz"#};
+
+#[test]
+fn test_a() {
+    let result = part_a();
+    assert_eq!(result, 255);
+}
+
+#[test]
+fn test_b() {
+    let result = part_b();
+    assert_eq!(result, 55);
+}

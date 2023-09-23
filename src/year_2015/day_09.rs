@@ -251,3 +251,16 @@ Snowdin to Arbre = 96
 Straylight to AlphaCentauri = 107
 Straylight to Arbre = 14
 AlphaCentauri to Arbre = 46"#};
+
+#[test]
+fn test_a() {
+    let result = part_a();
+    assert_eq!(result, 117);
+}
+
+#[test]
+fn test_b() {
+    let result = part_b();
+    assert_eq!(result, 909);
+}
+

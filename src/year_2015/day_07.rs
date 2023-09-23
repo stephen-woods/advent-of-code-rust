@@ -675,3 +675,15 @@ hf AND hl -> hn
 NOT h -> i
 NOT hn -> ho
 he RSHIFT 5 -> hh"#};
+
+#[test]
+fn test_a() {
+    let result = part_a();
+    assert_eq!(result, 16076);
+}
+
+#[test]
+fn test_b() {
+    let result = part_b();
+    assert_eq!(result, 2797);
+}

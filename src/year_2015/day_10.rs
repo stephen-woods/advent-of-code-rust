@@ -98,3 +98,16 @@ fn look_say(look: Vec<u32>) -> String {
 }
 
 const INPUT_A: &str = "1321131112";
+
+
+#[test]
+fn test_a() {
+    let result = part_a();
+    assert_eq!(result, 492982);
+}
+
+#[test]
+fn test_b() {
+    let result = part_b();
+    assert_eq!(result, 6989950);
+}

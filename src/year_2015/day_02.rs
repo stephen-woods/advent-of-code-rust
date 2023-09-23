@@ -1142,3 +1142,16 @@ const INPUT_A: &str = indoc! {r#"
 21x29x14
 20x29x30
 23x11x5"#};
+
+
+#[test]
+fn test_a() {
+    let result = part_a();
+    assert_eq!(result, 1598415);
+}
+
+#[test]
+fn test_b() {
+    let result = part_b();
+    assert_eq!(result, 3812909);
+}

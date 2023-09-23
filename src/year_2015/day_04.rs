@@ -67,3 +67,15 @@ fn mine(prefix: &str) -> u64 {
 }
 
 const INPUT_A: &str = "yzbqklnj";
+
+#[test]
+fn test_a() {
+    let result = part_a();
+    assert_eq!(result, 282749);
+}
+
+#[test]
+fn test_b() {
+    let result = part_b();
+    assert_eq!(result, 9962624);
+}

@@ -4,7 +4,6 @@
 //
 // Furthermore, because you've been especially nice this year, Santa has mailed you instructions on
 // how to display the ideal lighting configuration.
-//
 // Lights in your grid are numbered from 0 to 999 in each direction; the lights at each corner are
 // at 0,0, 0,999, 999,999, and 999,0. The instructions include whether to turn on, turn off, or
 // toggle various inclusive ranges given as coordinate pairs. Each coordinate pair represents
@@ -65,7 +64,9 @@ pub fn run() {
     let now = SystemTime::now();
     let answer_b = part_b();
     let duration = now.elapsed().expect("Elapsed failed");
-    println!("What is the total brightness of all lights combined after following Santa's instructions?");
+    println!(
+        "What is the total brightness of all lights combined after following Santa's instructions?"
+    );
     println!(" {}", answer_b);
     println!(" in {}ms", duration.as_millis());
 }
@@ -90,7 +91,6 @@ fn part_b() -> u32 {
     grid.total_brightness()
 }
 
-
 #[derive(Debug)]
 enum Command {
     On,
@@ -108,7 +108,6 @@ impl Command {
         }
     }
 }
-
 
 #[derive(Debug)]
 struct Instruction {
@@ -131,15 +130,14 @@ impl Instruction {
     }
 }
 
-
 struct Grid {
-    grid: Vec<bool>
+    grid: Vec<bool>,
 }
 
 impl Grid {
     fn new() -> Grid {
         Grid {
-            grid: vec![false; 1000*1000]
+            grid: vec![false; 1000 * 1000],
         }
     }
 
@@ -181,15 +179,14 @@ impl Grid {
     }
 }
 
-
 struct Grid2 {
-    grid: [u32; 1000 * 1000],
+    grid: Vec<Vec<u32>>,
 }
 
 impl Grid2 {
     fn new() -> Grid2 {
         Grid2 {
-            grid: [0; 1000 * 1000]
+            grid: vec![vec![0; 1000]; 1000],
         }
     }
 
@@ -198,17 +195,17 @@ impl Grid2 {
             Command::On => {
                 for x in instruction.sx..instruction.ex + 1 {
                     for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid[1000 * y + x];
-                        self.grid[1000 * y + x] = val + 1;
+                        let val = self.grid.get_mut(y).unwrap().get_mut(x).unwrap();
+                        *val += 1;
                     }
                 }
             }
             Command::Off => {
                 for x in instruction.sx..instruction.ex + 1 {
                     for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid[1000 * y + x];
-                        if val != 0 {
-                            self.grid[1000 * y + x] = val - 1;
+                        let val = self.grid.get_mut(y).unwrap().get_mut(x).unwrap();
+                        if *val != 0 {
+                            *val -= 1;
                         }
                     }
                 }
@@ -216,8 +213,8 @@ impl Grid2 {
             Command::Toggle => {
                 for x in instruction.sx..instruction.ex + 1 {
                     for y in instruction.sy..instruction.ey + 1 {
-                        let val = self.grid[1000 * y + x];
-                        self.grid[1000 * y + x] = val + 2;
+                        let val = self.grid.get_mut(y).unwrap().get_mut(x).unwrap();
+                        *val += 2;
                     }
                 }
             }
@@ -225,10 +222,10 @@ impl Grid2 {
     }
 
     fn total_brightness(&self) -> u32 {
-        self.grid.iter().sum()
+        self.grid.iter().flatten().sum()
+        // self.grid.iter().sum()
     }
 }
-
 
 fn parse_input_line(s: &str) -> Instruction {
     let pattern = r"(?<command>turn on|turn off|toggle) (?<sx>[0-9]+),(?<sy>[0-9]+) through (?<ex>[0-9]+),(?<ey>[0-9]+)";
@@ -551,3 +548,15 @@ turn on 715,871 through 722,890
 toggle 424,675 through 740,862
 toggle 580,592 through 671,900
 toggle 296,687 through 906,775"#};
+
+#[test]
+fn test_a() {
+    let result = part_a();
+    assert_eq!(result, 400410);
+}
+
+#[test]
+fn test_b() {
+    let result = part_b();
+    assert_eq!(result, 15343601);
+}

@@ -447,3 +447,15 @@ const INPUT_A: &str = indoc! {r#"
 "hjg\\w\"\x78uoqbsdikbjxpip\"w\"jnhzec"
 "gk"
 "\\zrs\\syur""#};
+
+#[test]
+fn test_a() {
+    let result = part_a();
+    assert_eq!(result, 1342);
+}
+
+#[test]
+fn test_b() {
+    let result = part_b();
+    assert_eq!(result, 2074);
+}
