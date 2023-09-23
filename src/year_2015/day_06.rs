@@ -144,22 +144,22 @@ impl Grid {
     fn execute(&mut self, instruction: &Instruction) {
         match instruction.command {
             Command::On => {
-                for x in instruction.sx..instruction.ex + 1 {
-                    for y in instruction.sy..instruction.ey + 1 {
+                for x in instruction.sx..=instruction.ex {
+                    for y in instruction.sy..=instruction.ey {
                         self.grid[1000 * y + x] = true
                     }
                 }
             }
             Command::Off => {
-                for x in instruction.sx..instruction.ex + 1 {
-                    for y in instruction.sy..instruction.ey + 1 {
+                for x in instruction.sx..=instruction.ex {
+                    for y in instruction.sy..=instruction.ey {
                         self.grid[1000 * y + x] = false
                     }
                 }
             }
             Command::Toggle => {
-                for x in instruction.sx..instruction.ex + 1 {
-                    for y in instruction.sy..instruction.ey + 1 {
+                for x in instruction.sx..=instruction.ex {
+                    for y in instruction.sy..=instruction.ey {
                         let val = self.grid[1000 * y + x];
                         self.grid[1000 * y + x] = !val
                     }
@@ -193,18 +193,18 @@ impl Grid2 {
     fn execute(&mut self, instruction: &Instruction) {
         match instruction.command {
             Command::On => {
-                let slicey = &mut self.grid[instruction.sy..instruction.ey + 1];
+                let slicey = &mut self.grid[instruction.sy..=instruction.ey];
                 for y in slicey {
-                    let slicex = &mut y[instruction.sx..instruction.ex + 1];
+                    let slicex = &mut y[instruction.sx..=instruction.ex];
                     for x in slicex {
                         *x += 1;
                     }
                 }
             }
             Command::Off => {
-                let slicey = &mut self.grid[instruction.sy..instruction.ey + 1];
+                let slicey = &mut self.grid[instruction.sy..=instruction.ey];
                 for y in slicey {
-                    let slicex = &mut y[instruction.sx..instruction.ex + 1];
+                    let slicex = &mut y[instruction.sx..=instruction.ex];
                     for x in slicex {
                         if *x != 0 {
                             *x -= 1;
@@ -213,9 +213,9 @@ impl Grid2 {
                 }
             }
             Command::Toggle => {
-                let slicey = &mut self.grid[instruction.sy..instruction.ey + 1];
+                let slicey = &mut self.grid[instruction.sy..=instruction.ey];
                 for y in slicey {
-                    let slicex = &mut y[instruction.sx..instruction.ex + 1];
+                    let slicex = &mut y[instruction.sx..=instruction.ex];
                     for x in slicex {
                         *x += 2;
                     }
@@ -226,7 +226,6 @@ impl Grid2 {
 
     fn total_brightness(&self) -> u32 {
         self.grid.iter().flatten().sum()
-        // self.grid.iter().sum()
     }
 }
 
