@@ -58,38 +58,30 @@ fn part_a() -> usize {
 }
 
 fn part_b() -> usize {
-
-
-    let aaa = str_to_radix26("abcz");
-
-    println!("Ploop {aaa}");
-
-    let bbb = radix26_to_vd(aaa);
-
-    println!("Poop {:?}", bbb);
     3
 }
 
 fn str_to_radix26(s: &str) -> u32 {
+    let zero: u32 = 0;
     // Assuming each character is an ASCII character, simply subtract all of the characters
     // before lower case a. Fold over each number in reverse to build up a radix 26 number.
-    s.chars()
-        .map(|c| (c as u32) - 96)
+    s.bytes()
+        .into_iter()
+        .map(|c| (c as u8) - 96)
         .rev()
-        .fold(0, |a, x| (a * 26) + x)
+        .fold(zero, |a, x| (a * 26) + u32::from(x))
 }
 
-fn radix26_to_vd(n: u32) -> VecDeque<char> {
+fn radix26_to_vd(n: u32) -> VecDeque<u8> {
     // Use a VecDeque instead of a Vec to efficiently prepend resulting chars
-    let mut ret: VecDeque<char> = VecDeque::new();
-    let mut num: u32 = n;
+    let mut ret: VecDeque<u8> = VecDeque::new();
 
+    let mut num: u32 = n;
     loop {
-        let m = num % 26;
+        let m: u8 = (num % 26) as u8;
         num = num / 26;
 
-        let ch = char::from_u32(m + 96).unwrap();
-        ret.push_front(ch);
+        ret.push_front(m);
         if num == 0 {
             break;
         }
@@ -97,10 +89,22 @@ fn radix26_to_vd(n: u32) -> VecDeque<char> {
     ret
 }
 
-fn vd_to_string(vd: VecDeque<char>) -> String {
+fn vd_to_string(vd: VecDeque<u8>) -> String {
     vd.into_iter()
+        .map(|x|  char::from_u32(u32::from(x ) + 96).unwrap())
         .collect()
 }
+
+// fn contains_straight(vd: VecDeque<char>) -> bool {
+//     let mut count = 0;
+//     let mut last: char = -1;
+//     for x in vd.into_iter() {
+//         let ggg = x + (1 as char);
+//         if (x ==)
+//         return true
+//     }
+//     false
+// }
 
 const INPUT_A: &str = "hepxcrrq";
 
@@ -123,31 +127,3 @@ fn test_a() {
     //let result = part_a();
     //assert_eq!(result, 492982);
 }
-
-
-
-
-// fn str_to_radix26(s: &str) -> u32 {
-//     s.chars()
-//         .map(|c| (c as u32) - 96)
-//         .rev()
-//         .fold(0, |a, x| (a * 26) + x)
-// }
-
-// fn radix26_to_string(n: u32) -> String {
-//     let mut num = n;
-//     let mut ret = String::from("");
-//     loop {
-//         let m = num % 26;
-//         num = num / 26;
-
-//         let ch = char::from_u32(m + 96).unwrap();
-//         ret.push(ch);
-//         if num == 0 {
-//             break;
-//         }
-//     }
-//     ret
-
-//     // FIXME Need to reverse the string or prepend instead of append
-// }
