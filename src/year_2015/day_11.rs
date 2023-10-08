@@ -61,22 +61,22 @@ fn part_b() -> usize {
     3
 }
 
-fn str_to_radix26(s: &str) -> u32 {
-    let zero: u32 = 0;
+fn str_to_radix26(s: &str) -> u64 {
+    let zero: u64 = 0;
     // Assuming each character is an ASCII character, simply subtract all of the characters
     // before lower case a. Fold over each number in reverse to build up a radix 26 number.
     s.bytes()
         .into_iter()
         .map(|c| (c as u8) - 96)
         .rev()
-        .fold(zero, |a, x| (a * 26) + u32::from(x))
+        .fold(zero, |a, x| (a * 26) + u64::from(x))
 }
 
-fn radix26_to_vd(n: u32) -> VecDeque<u8> {
+fn radix26_to_vd(n: u64) -> VecDeque<u8> {
     // Use a VecDeque instead of a Vec to efficiently prepend resulting chars
     let mut ret: VecDeque<u8> = VecDeque::new();
 
-    let mut num: u32 = n;
+    let mut num: u64 = n;
     loop {
         let m: u8 = (num % 26) as u8;
         num = num / 26;
@@ -95,16 +95,22 @@ fn vd_to_string(vd: VecDeque<u8>) -> String {
         .collect()
 }
 
-// fn contains_straight(vd: VecDeque<char>) -> bool {
-//     let mut count = 0;
-//     let mut last: char = -1;
-//     for x in vd.into_iter() {
-//         let ggg = x + (1 as char);
-//         if (x ==)
-//         return true
-//     }
-//     false
-// }
+fn contains_straight(vd: VecDeque<u8>, count: i32) -> bool {
+    let mut c = 1;
+    let mut last: u8 = u8::MAX - 1;
+    for x in vd.into_iter().rev() {
+        if x == last + 1 {
+            c += 1;
+            if c == count {
+                break;
+            }
+        } else {
+            c = 1
+        }
+        last = x;
+    }
+    c == count
+}
 
 const INPUT_A: &str = "hepxcrrq";
 
@@ -122,8 +128,12 @@ fn test_a() {
     gg += 15;
     let gggx = radix26_to_vd(gg);
     let ggg = vd_to_string(gggx);
-    assert_eq!(ggg, "aa");
-    //let _b = INPUT_A;
-    //let result = part_a();
-    //assert_eq!(result, 492982);
+    assert_eq!(ggg, "ao");
+}
+
+#[test]
+fn test_contains_straight_abc() {
+    let abc =  str_to_radix26("ggafabchrdfdg");
+    let vd_abc = radix26_to_vd(abc);
+    assert_eq!(true, contains_straight(vd_abc, 3));
 }
