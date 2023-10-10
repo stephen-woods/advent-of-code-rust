@@ -31,8 +31,15 @@
 //   that start with ghi..., since i is not allowed.
 //
 // Given Santa's current password (your puzzle input), what should his next password be?
+//
+// Your puzzle answer was hepxxyzz.
+//
+// --- Part Two ---
+// Santa's password expired again. What's the next one?
+//
+// Your puzzle answer was heqaabcc.
 
-use std::{time::SystemTime, collections::VecDeque};
+use std::{collections::VecDeque, time::SystemTime};
 
 pub fn run() {
     println!("--- Day 11: Corporate Policy ---");
@@ -52,24 +59,58 @@ pub fn run() {
     println!(" in {}ms", duration.as_millis());
 }
 
-fn part_a() -> usize {
-    // let xxx : Vec<u32> = INPUT_A.chars().into_iter().collect();
-    3
+fn part_a() -> String {
+    next_password(INPUT_A)
 }
 
-fn part_b() -> usize {
-    3
+fn part_b() -> String {
+    next_password("hepxxyzz")
 }
 
-fn str_to_radix26(s: &str) -> u64 {
+fn next_password(current: &str) -> String {
+    let sorted_invalids = vec![
+        ascii_char_to_radix26("i"),
+        ascii_char_to_radix26("l"),
+        ascii_char_to_radix26("o"),
+    ];
+
+    let mut r26 = str_to_u64(current, 26, 97);
+    // Bump to next candidate
+    r26 += 1;
+    let mut vd = radix26_to_vd(r26);
+    let mut found = false;
+    while !found {
+        if check_contains_straight(&vd, 3)
+            && check_consecutive_duplicates(&vd, 2)
+            && check_contains_valid(&vd, &sorted_invalids){
+            found = true
+        } else {
+            r26 += 1;
+            vd = radix26_to_vd(r26);
+        }
+    }
+
+    vd_to_string(&vd)
+}
+
+
+fn str_to_u64(s: &str, radix: u64, ascii_base: u8) -> u64 {
     let zero: u64 = 0;
-    // Assuming each character is an ASCII character, simply subtract all of the characters
-    // before lower case a. Fold over each number in reverse to build up a radix 26 number.
+    // Assuming each character is an ASCII character byte, simply subtract all of the
+    // characters before the ascii_base. Fold over each number to build up number.
     s.bytes()
         .into_iter()
-        .map(|c| (c as u8) - 96)
-        .rev()
-        .fold(zero, |a, x| (a * 26) + u64::from(x))
+        .map(|c| (c as u8) - ascii_base)
+        .fold(zero, |a, x| (a * radix) + u64::from(x))
+}
+
+fn ascii_char_to_radix26(s: &str) -> u8 {
+    if (s.len() != 1) || (!s.is_ascii()) {
+        panic!("String is not a single ASCII char")
+    }
+
+    let c = s.as_bytes().get(0).unwrap();
+    (*c as u8) - 97
 }
 
 fn radix26_to_vd(n: u64) -> VecDeque<u8> {
@@ -89,17 +130,17 @@ fn radix26_to_vd(n: u64) -> VecDeque<u8> {
     ret
 }
 
-fn vd_to_string(vd: VecDeque<u8>) -> String {
+fn vd_to_string(vd: &VecDeque<u8>) -> String {
     vd.into_iter()
-        .map(|x|  char::from_u32(u32::from(x ) + 96).unwrap())
+        .map(|x| char::from_u32(u32::from(*x) + 97).unwrap())
         .collect()
 }
 
-fn contains_straight(vd: VecDeque<u8>, count: i32) -> bool {
+fn check_contains_straight(vd: &VecDeque<u8>, count: i32) -> bool {
     let mut c = 1;
     let mut last: u8 = u8::MAX - 1;
-    for x in vd.into_iter().rev() {
-        if x == last + 1 {
+    for x in vd.into_iter() {
+        if *x == last + 1 {
             c += 1;
             if c == count {
                 break;
@@ -107,33 +148,56 @@ fn contains_straight(vd: VecDeque<u8>, count: i32) -> bool {
         } else {
             c = 1
         }
-        last = x;
+        last = *x;
     }
     c == count
+}
+
+fn check_consecutive_duplicates(vd: &VecDeque<u8>, num_dupes: i32) -> bool {
+    // Keep a count of how many duplicates we have encountered.
+    let mut dupes = 0;
+
+    // Set the last element to something invalid
+    let mut last: u8 = u8::MAX - 1;
+    for x in vd.into_iter() {
+        if *x == last {
+            // If the current element matches the last one, we have a duplicate. Reset the last to
+            // invalid so we do not count overlapping duplicates.
+            dupes += 1;
+            last = u8::MAX - 1;
+            if dupes == num_dupes {
+                break;
+            }
+        } else {
+            last = *x;
+        }
+    }
+    dupes == num_dupes
+}
+
+fn check_contains_valid(vd: &VecDeque<u8>, sorted_invalids: &Vec<u8>) -> bool {
+    if sorted_invalids.is_empty() {
+        return true;
+    }
+
+    for x in vd.into_iter() {
+        if sorted_invalids.binary_search(x).is_ok() {
+            return false;
+        }
+    }
+    true
 }
 
 const INPUT_A: &str = "hepxcrrq";
 
 #[test]
 fn test_a() {
-    // let a = str_to_radix26("a");
-    // let b = str_to_radix26("b");
-    let z = str_to_radix26("z");
-
-    assert_eq!(z, 26);
-    let aa = str_to_radix26("aa");
-    assert_eq!(aa, 27);
-
-    let mut gg = str_to_radix26("z");
-    gg += 15;
-    let gggx = radix26_to_vd(gg);
-    let ggg = vd_to_string(gggx);
-    assert_eq!(ggg, "ao");
+    let answer = part_a();
+    assert_eq!("hepxxyzz", answer);
 }
 
 #[test]
-fn test_contains_straight_abc() {
-    let abc =  str_to_radix26("ggafabchrdfdg");
-    let vd_abc = radix26_to_vd(abc);
-    assert_eq!(true, contains_straight(vd_abc, 3));
+fn test_b() {
+    let answer = part_b();
+    assert_eq!("heqaabcc", answer);
 }
