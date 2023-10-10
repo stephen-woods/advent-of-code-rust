@@ -39,7 +39,7 @@
 //
 // Your puzzle answer was heqaabcc.
 
-use std::{collections::VecDeque, time::SystemTime};
+use std::time::SystemTime;
 
 pub fn run() {
     println!("--- Day 11: Corporate Policy ---");
@@ -77,7 +77,7 @@ fn next_password(current: &str) -> String {
     let mut r26 = str_to_u64(current, 26, 97);
     // Bump to next candidate
     r26 += 1;
-    let mut vd = radix26_to_vd(r26);
+    let mut vd = u64_to_reverse_digits(r26, 26);
     let mut found = false;
     while !found {
         if check_contains_straight(&vd, 3)
@@ -86,11 +86,11 @@ fn next_password(current: &str) -> String {
             found = true
         } else {
             r26 += 1;
-            vd = radix26_to_vd(r26);
+            vd = u64_to_reverse_digits(r26, 26);
         }
     }
 
-    vd_to_string(&vd)
+    reverse_digits_to_string(&vd)
 }
 
 
@@ -113,33 +113,34 @@ fn ascii_char_to_radix26(s: &str) -> u8 {
     (*c as u8) - 97
 }
 
-fn radix26_to_vd(n: u64) -> VecDeque<u8> {
-    // Use a VecDeque instead of a Vec to efficiently prepend resulting chars
-    let mut ret: VecDeque<u8> = VecDeque::new();
 
-    let mut num: u64 = n;
-    loop {
-        let m: u8 = (num % 26) as u8;
-        num = num / 26;
+fn u64_to_reverse_digits(n: u64, radix: u64) -> Vec<u8> {
+ // Returned Vec will have digits in reverse order.
+ let mut ret: Vec<u8> = Vec::new();
 
-        ret.push_front(m);
-        if num == 0 {
-            break;
-        }
-    }
-    ret
+ let mut num: u64 = n;
+ loop {
+     let m: u8 = (num % radix) as u8;
+     num = num / radix;
+
+     ret.push(m);
+     if num == 0 {
+         break;
+     }
+ }
+ ret
 }
 
-fn vd_to_string(vd: &VecDeque<u8>) -> String {
-    vd.into_iter()
+fn reverse_digits_to_string(vd: &Vec<u8>) -> String {
+    vd.into_iter().rev()
         .map(|x| char::from_u32(u32::from(*x) + 97).unwrap())
         .collect()
 }
 
-fn check_contains_straight(vd: &VecDeque<u8>, count: i32) -> bool {
+fn check_contains_straight(vd: &Vec<u8>, count: i32) -> bool {
     let mut c = 1;
     let mut last: u8 = u8::MAX - 1;
-    for x in vd.into_iter() {
+    for x in vd.into_iter().rev() {
         if *x == last + 1 {
             c += 1;
             if c == count {
@@ -153,13 +154,13 @@ fn check_contains_straight(vd: &VecDeque<u8>, count: i32) -> bool {
     c == count
 }
 
-fn check_consecutive_duplicates(vd: &VecDeque<u8>, num_dupes: i32) -> bool {
+fn check_consecutive_duplicates(vd: &Vec<u8>, num_dupes: i32) -> bool {
     // Keep a count of how many duplicates we have encountered.
     let mut dupes = 0;
 
     // Set the last element to something invalid
     let mut last: u8 = u8::MAX - 1;
-    for x in vd.into_iter() {
+    for x in vd.into_iter().rev() {
         if *x == last {
             // If the current element matches the last one, we have a duplicate. Reset the last to
             // invalid so we do not count overlapping duplicates.
@@ -175,7 +176,7 @@ fn check_consecutive_duplicates(vd: &VecDeque<u8>, num_dupes: i32) -> bool {
     dupes == num_dupes
 }
 
-fn check_contains_valid(vd: &VecDeque<u8>, sorted_invalids: &Vec<u8>) -> bool {
+fn check_contains_valid(vd: &Vec<u8>, sorted_invalids: &Vec<u8>) -> bool {
     if sorted_invalids.is_empty() {
         return true;
     }
