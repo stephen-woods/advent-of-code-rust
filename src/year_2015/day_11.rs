@@ -1,3 +1,44 @@
+// --- Day 11: Corporate Policy ---
+// Santa's previous password expired, and he needs help choosing a new one.
+//
+// To help him remember his new password after the old one expires, Santa has devised a method of
+// coming up with a password based on the previous one. Corporate policy dictates that passwords
+// must be exactly eight lowercase letters (for security reasons), so he finds his new password by
+// incrementing his old password string repeatedly until it is valid.
+//
+// Incrementing is just like counting with numbers: xx, xy, xz, ya, yb, and so on. Increase the
+// rightmost letter one step; if it was z, it wraps around to a, and repeat with the next letter
+// to the left until one doesn't wrap around.
+//
+// Unfortunately for Santa, a new Security-Elf recently started, and he has imposed some additional
+// password requirements:
+//
+// - Passwords must include one increasing straight of at least three letters, like abc, bcd, cde,
+//   and so on, up to xyz. They cannot skip letters; abd doesn't count.
+// - Passwords may not contain the letters i, o, or l, as these letters can be mistaken for other
+//   characters and are therefore confusing.
+// - Passwords must contain at least two different, non-overlapping pairs of letters, like aa, bb,
+//   or zz.
+// For example:
+//
+// - hijklmmn meets the first requirement (because it contains the straight hij) but fails the
+//   second requirement requirement (because it contains i and l).
+// - abbceffg meets the third requirement (because it repeats bb and ff) but fails the first
+//   requirement.
+// - abbcegjk fails the third requirement, because it only has one double letter (bb).
+// - The next password after abcdefgh is abcdffaa.
+// - The next password after ghijklmn is ghjaabcc, because you eventually skip all the passwords
+//   that start with ghi..., since i is not allowed.
+//
+// Given Santa's current password (your puzzle input), what should his next password be?
+//
+// Your puzzle answer was hepxxyzz.
+//
+// --- Part Two ---
+// Santa's password expired again. What's the next one?
+//
+// Your puzzle answer was heqaabcc.
+
 use std::time::SystemTime;
 
 pub fn run() {
@@ -18,80 +59,146 @@ pub fn run() {
     println!(" in {}ms", duration.as_millis());
 }
 
-fn part_a() -> usize {
-   // let xxx : Vec<u32> = INPUT_A.chars().into_iter().collect();
-    3
+fn part_a() -> String {
+    next_password(INPUT_A)
 }
 
-fn part_b() -> usize {
-     // "abcde".chars()
-     //    .for_each(|c| {
-     //        let x = (c as u32) - 49;
-     //        println!("{:?}", x)
-     //      //  char::from_u32(x).unwrap().to_digit(26)
-     //    });
-    //  let xx : String  = "abcde"
-    //      .chars()
-    //      .map(|c| {
-    //          let x = (c as u32) - 49;
-    //          char::from_u32(x).unwrap()
-    //      }
-    //      ).collect();
-    //
-    //     println!("{xx}");
-    //
-    // let bb : u64 = u64::from_str_radix(&xx, 26).unwrap();
-    //
-    // println!("{bb}");
-    //
-    // let  cc = format!("{}", std::fmt::radix(bb, 26));
-    //
-    // println!("{cc}");
-
-    let aaa = str_to_radix26("abcz");
-
-    println!("Ploop {aaa}");
-
-    let bbb = radix26_to_string(aaa);
-
-    println!("Poop {bbb}");
-    3
+fn part_b() -> String {
+    next_password("hepxxyzz")
 }
 
-fn str_to_radix26(s: &str) -> u32 {
-    let xx: String = s.chars()
-        .map(|c| {
-            let x = (c as u32) - 49;
-            char::from_u32(x).unwrap()
-        })
-        .collect();
-    u32::from_str_radix(&xx, 26).unwrap()
-}
+fn next_password(current: &str) -> String {
+    let sorted_invalids = vec![
+        ascii_char_to_radix26("i"),
+        ascii_char_to_radix26("l"),
+        ascii_char_to_radix26("o"),
+    ];
 
-fn radix26_to_string(n: u32) -> String {
-    let mut num = n;
-    let mut ret = vec![];
-    loop {
-        let m = num % 26;
-        num = num / 26;
-        ret.push(char::from_digit(m, 26).unwrap());
-        if num == 0 {
-            break;
+    let mut r26 = str_to_u64(current, 26, 97);
+    // Bump to next candidate
+    r26 += 1;
+    let mut vd = u64_to_reverse_digits(r26, 26);
+    let mut found = false;
+    while !found {
+        if check_contains_straight(&vd, 3)
+            && check_consecutive_duplicates(&vd, 2)
+            && check_contains_valid(&vd, &sorted_invalids){
+            found = true
+        } else {
+            r26 += 1;
+            vd = u64_to_reverse_digits(r26, 26);
         }
     }
-    ret.into_iter()
-        .map(|c| {
-            let x = (c as u32) + 48;
-            char:: from_u32(x).unwrap()
-        })
-        .rev()
+
+    reverse_digits_to_string(&vd)
+}
+
+
+fn str_to_u64(s: &str, radix: u64, ascii_base: u8) -> u64 {
+    let zero: u64 = 0;
+    // Assuming each character is an ASCII character byte, simply subtract all of the
+    // characters before the ascii_base. Fold over each number to build up number.
+    s.bytes()
+        .into_iter()
+        .map(|c| (c as u8) - ascii_base)
+        .fold(zero, |a, x| (a * radix) + u64::from(x))
+}
+
+fn ascii_char_to_radix26(s: &str) -> u8 {
+    if (s.len() != 1) || (!s.is_ascii()) {
+        panic!("String is not a single ASCII char")
+    }
+
+    let c = s.as_bytes().get(0).unwrap();
+    (*c as u8) - 97
+}
+
+
+fn u64_to_reverse_digits(n: u64, radix: u64) -> Vec<u8> {
+ // Returned Vec will have digits in reverse order.
+ let mut ret: Vec<u8> = Vec::new();
+
+ let mut num: u64 = n;
+ loop {
+     let m: u8 = (num % radix) as u8;
+     num = num / radix;
+
+     ret.push(m);
+     if num == 0 {
+         break;
+     }
+ }
+ ret
+}
+
+fn reverse_digits_to_string(vd: &Vec<u8>) -> String {
+    vd.into_iter().rev()
+        .map(|x| char::from_u32(u32::from(*x) + 97).unwrap())
         .collect()
 }
 
-
-fn req_1(s: &str) -> bool {
-    todo!()
+fn check_contains_straight(vd: &Vec<u8>, count: i32) -> bool {
+    let mut c = 1;
+    let mut last: u8 = u8::MAX - 1;
+    for x in vd.into_iter().rev() {
+        if *x == last + 1 {
+            c += 1;
+            if c == count {
+                break;
+            }
+        } else {
+            c = 1
+        }
+        last = *x;
+    }
+    c == count
 }
 
+fn check_consecutive_duplicates(vd: &Vec<u8>, num_dupes: i32) -> bool {
+    // Keep a count of how many duplicates we have encountered.
+    let mut dupes = 0;
+
+    // Set the last element to something invalid
+    let mut last: u8 = u8::MAX - 1;
+    for x in vd.into_iter().rev() {
+        if *x == last {
+            // If the current element matches the last one, we have a duplicate. Reset the last to
+            // invalid so we do not count overlapping duplicates.
+            dupes += 1;
+            last = u8::MAX - 1;
+            if dupes == num_dupes {
+                break;
+            }
+        } else {
+            last = *x;
+        }
+    }
+    dupes == num_dupes
+}
+
+fn check_contains_valid(vd: &Vec<u8>, sorted_invalids: &Vec<u8>) -> bool {
+    if sorted_invalids.is_empty() {
+        return true;
+    }
+
+    for x in vd.into_iter() {
+        if sorted_invalids.binary_search(x).is_ok() {
+            return false;
+        }
+    }
+    true
+}
 
 const INPUT_A: &str = "hepxcrrq";
+
+#[test]
+fn test_a() {
+    let answer = part_a();
+    assert_eq!("hepxxyzz", answer);
+}
+
+#[test]
+fn test_b() {
+    let answer = part_b();
+    assert_eq!("heqaabcc", answer);
+}
