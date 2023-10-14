@@ -54,7 +54,7 @@ pub fn run() {
     let now = SystemTime::now();
     let answer_b = part_b();
     let duration = now.elapsed().expect("Elapsed failed");
-    println!("huh?");
+    println!("Santa's password expired again. What's the next one??");
     println!(" {}", answer_b);
     println!(" in {}ms", duration.as_millis());
 }
