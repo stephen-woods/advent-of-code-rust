@@ -42,11 +42,12 @@
 //
 // Your puzzle answer was 909.
 
-use std::collections::{HashMap, HashSet};
+use crate::algorithm::heap_permutations;
 use indoc::indoc;
 use regex::Regex;
+use std::cmp::{max, min};
+use std::collections::{HashMap, HashSet};
 use std::time::SystemTime;
-use std::cmp::{min, max};
 
 pub fn run() {
     println!("--- Day 9: All in a Single Night ---");
@@ -65,7 +66,6 @@ pub fn run() {
     println!(" {}", answer_b);
     println!(" in {}ms", duration.as_millis());
 }
-
 
 fn part_a() -> u32 {
     let dr = DayRegex::init();
@@ -95,7 +95,6 @@ fn part_a() -> u32 {
     answer
 }
 
-
 fn part_b() -> u32 {
     let dr = DayRegex::init();
 
@@ -124,54 +123,15 @@ fn part_b() -> u32 {
     answer
 }
 
-
-// Returns a vector of all permutations of values within the set using a non-recurisve
-// version of Heap's algorithm: https://en.wikipedia.org/wiki/Heap%27s_algorithm
-fn heap_permutations(all_points: &HashSet<String>) -> Vec<Vec<&str>> {
-    let mut ret: Vec<Vec<&str>> = Vec::new();
-    let mut points: Vec<&str> = all_points
-        .into_iter()
-        .map(|x| x.as_str())
-        .collect();
-
-    let size = all_points.len();
-    let mut c: Vec<usize> = vec![0; size];
-
-    ret.push(points.clone());
-
-    let mut i: usize = 1;
-    while i < size {
-        let cc = c.get_mut(i).unwrap();
-        if *cc < i {
-            if i % 2 == 0 {
-                points.swap(0, i);
-            } else {
-                points.swap(*cc, i);
-            }
-            ret.push(points.clone());
-            *cc += 1;
-            i = 1;
-        } else {
-            *cc = 0;
-            i += 1;
-        }
-    }
-
-    ret
-}
-
-
-fn calc_distance(points: &Vec<&str>,
-                 distances: &HashMap<(String, String), u32>) -> u32 {
-    let mut total= 0;
-    for ab in  points.windows(2) {
+fn calc_distance(points: &Vec<&str>, distances: &HashMap<(String, String), u32>) -> u32 {
+    let mut total = 0;
+    for ab in points.windows(2) {
         let k = &(ab[0].to_string(), ab[1].to_string());
         let d = distances.get(k).unwrap_or(&0).clone();
         total += d;
     }
     total
 }
-
 
 struct Distance {
     point_a: String,
@@ -185,7 +145,6 @@ impl Distance {
     }
 }
 
-
 struct DayRegex {
     distance: Regex,
 }
@@ -193,27 +152,26 @@ struct DayRegex {
 impl DayRegex {
     fn init() -> DayRegex {
         DayRegex {
-            distance: Regex::new(r"^(?<a>[a-zA-Z]+) to (?<b>[a-zA-Z]+) = (?<d>[0-9]+)$").unwrap()
+            distance: Regex::new(r"^(?<a>[a-zA-Z]+) to (?<b>[a-zA-Z]+) = (?<d>[0-9]+)$").unwrap(),
         }
     }
 
     fn parse_distance(&self, s: &str) -> Option<Distance> {
-        self.distance.captures(s)
-            .map(|c| {
-                let a = c.name("a").unwrap().as_str();
-                let b = c.name("b").unwrap().as_str();
-                let d = c.name("d").unwrap().as_str();
+        self.distance.captures(s).map(|c| {
+            let a = c.name("a").unwrap().as_str();
+            let b = c.name("b").unwrap().as_str();
+            let d = c.name("d").unwrap().as_str();
 
-                let point_a = String::from(a);
-                let point_b = String::from(b);
-                let distance = d.parse::<u32>().unwrap();
+            let point_a = String::from(a);
+            let point_b = String::from(b);
+            let distance = d.parse::<u32>().unwrap();
 
-                Distance {
-                    point_a: point_a,
-                    point_b: point_b,
-                    distance: distance,
-                }
-            })
+            Distance {
+                point_a: point_a,
+                point_b: point_b,
+                distance: distance,
+            }
+        })
     }
 }
 
@@ -263,4 +221,3 @@ fn test_b() {
     let result = part_b();
     assert_eq!(result, 909);
 }
-
