@@ -3,7 +3,7 @@
 // gets along! This year, you resolve, will be different. You're going to find the
 // optimal seating arrangement and avoid all those awkward conversations.
 //
-// You start by writing up a list of everyone invited and the amount their bappiness
+// You start by writing up a list of everyone invited and the amount their happiness
 // would increase or decrease if they were to find themselves sitting next to each
 // other person. You have a circular table that will be just big enough to fit
 // everyone comfortably, and so each person will have exactly two neighbors.
@@ -84,54 +84,43 @@ pub fn run() {
 }
 
 fn part_a() -> i32 {
-    let kr = KnightRegex::init();
-    let mut all_knights: HashSet<String> = HashSet::new();
-    let mut relationships: HashMap<(String, String), i32> = HashMap::new();
-    for line in _INPUT_A.lines() {
-        if let Some(r) = kr.parse_happiness(line) {
-            all_knights.insert(r.knight_a.clone());
-            relationships.insert((r.knight_a.clone(), r.knight_b.clone()), r.happiness);
-        }
-    }
+    let (all_knights, relationships) = all_knights_and_relationships(_INPUT_A);
 
     let seatings = heap_permutations(&all_knights);
-    let mut answer = i32::MIN;
 
-    for seating in seatings {
-        let x = calculate_happiness(&seating, &relationships);
-        answer = i32::max(answer, x);
-    }
-    answer
+    happiest(seatings, relationships)
 }
 
 fn part_b() -> i32 {
+    let (mut all_knights, relationships) = all_knights_and_relationships(_INPUT_A);
+    all_knights.insert(String::from("Me"));
+
+    let seatings = heap_permutations(&all_knights);
+
+    happiest(seatings, relationships)
+}
+
+fn all_knights_and_relationships(input: &str) ->  (HashSet<String>, HashMap<(String, String), i32>)  {
     let kr = KnightRegex::init();
     let mut all_knights: HashSet<String> = HashSet::new();
 
     let mut relationships: HashMap<(String, String), i32> = HashMap::new();
-    for line in _INPUT_A.lines() {
+    for line in input.lines() {
         if let Some(r) = kr.parse_happiness(line) {
             all_knights.insert(r.knight_a.clone());
             relationships.insert((r.knight_a.clone(), r.knight_b.clone()), r.happiness);
         }
     }
+    (all_knights, relationships)
+}
 
-    // Add yourself
-    all_knights.insert(String::from("Me"));
-    let seatings = heap_permutations(&all_knights);
+fn happiest(seatings: Vec<Vec<&str>>, relationships:  HashMap<(String, String), i32>) -> i32 {
     let mut answer = i32::MIN;
-
     for seating in seatings {
         let x = calculate_happiness(&seating, &relationships);
         answer = i32::max(answer, x);
     }
     answer
-}
-
-struct KnightRelationship {
-    knight_a: String,
-    knight_b: String,
-    happiness: i32,
 }
 
 fn calculate_happiness(seating: &Vec<&str>, relationships: &HashMap<(String, String), i32>) -> i32 {
@@ -161,6 +150,12 @@ fn calculate_happiness(seating: &Vec<&str>, relationships: &HashMap<(String, Str
     }
 
     total
+}
+
+struct KnightRelationship {
+    knight_a: String,
+    knight_b: String,
+    happiness: i32,
 }
 
 struct KnightRegex {
