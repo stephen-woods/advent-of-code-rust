@@ -1,4 +1,6 @@
+pub mod algorithm;
 pub mod command_line;
+
 mod year_2015;
 
 pub fn run(year: u32, day: u8) {
