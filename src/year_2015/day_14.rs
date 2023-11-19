@@ -43,6 +43,9 @@
 //
 // Again given the descriptions of each reindeer (in your puzzle input), after exactly 2503 seconds,
 // how many points does the winning reindeer have?
+//
+// Your puzzle answer was 1084.
+
 use indoc::indoc;
 use regex::Regex;
 use std::time::SystemTime;
@@ -78,16 +81,26 @@ fn part_a() -> u32 {
             racers.push(rd);
         }
     }
-   start_distance_race(&mut racers, 2503)
+    start_distance_race(&mut racers, 2503)
 }
 
-fn part_b() -> i32 {
-    3
+fn part_b() -> u32 {
+    let rr = RaceRegex::init();
+
+    let mut racers: Vec<Reindeer> = Vec::new();
+    for line in INPUT_A.lines() {
+        if let Some(rd) = rr.parse(line) {
+            racers.push(rd);
+        }
+    }
+    start_points_race(&mut racers, 2503)
 }
 
 fn start_distance_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
     let mut time: usize = 0;
     while time < seconds {
+        // Must use explicit mutable iterator that does a reborrow instead of relying on
+        // implicit iterator
         for r in racers.iter_mut() {
             if r.left == 0 {
                 r.running = !r.running;
@@ -100,26 +113,57 @@ fn start_distance_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
             if r.running {
                 r.distance += r.speed
             }
-            r.left -= 1 ;
+            r.left -= 1;
         }
         time += 1;
     }
 
-    let mut farthest:u32 = 0;
-    for r in racers {
-        farthest = u32::max(farthest, r.distance)
+    racers.iter().fold(0, |farthest, r| u32::max(farthest, r.distance))
+}
+
+fn start_points_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
+    let mut time: usize = 0;
+    let mut farthest: u32 = 0;
+    while time < seconds {
+        // Must use explicit mutable iterator that does a reborrow instead of relying on
+        // implicit iterator
+        for r in racers.iter_mut() {
+            if r.left == 0 {
+                r.running = !r.running;
+                r.left = if r.running {
+                    r.run_seconds
+                } else {
+                    r.rest_seconds
+                }
+            }
+            if r.running {
+                r.distance += r.speed;
+                farthest = u32::max(farthest, r.distance);
+            }
+            r.left -= 1;
+        }
+
+        // Now give points to those that are the farthest
+        for r in racers.iter_mut() {
+            if r.distance == farthest {
+                r.points += 1;
+            }
+        }
+        time += 1;
     }
-    farthest
+    
+    racers.iter().fold(0, |most, r| u32::max(most, r.points))
 }
 
 struct Reindeer {
-    name: String,
+    _name: String,
     speed: u32,
     run_seconds: u32,
     rest_seconds: u32,
     running: bool,
     left: u32,
     distance: u32,
+    points: u32,
 }
 
 struct RaceRegex {
@@ -128,14 +172,15 @@ struct RaceRegex {
 
 impl RaceRegex {
     fn init() -> RaceRegex {
-        RaceRegex{
+        RaceRegex {
             regex: Regex::new(INPUT_REGEX).unwrap(),
         }
     }
 
     fn parse(&self, s: &str) -> Option<Reindeer> {
         self.regex.captures(s).map(|c| {
-            let name = String::from(c.name("name").unwrap().as_str());
+            // Name is not actually used
+            let _name = String::from(c.name("name").unwrap().as_str());
             let s_speed = c.name("speed").unwrap().as_str();
             let s_run = c.name("run").unwrap().as_str();
             let s_rest = c.name("rest").unwrap().as_str();
@@ -144,13 +189,14 @@ impl RaceRegex {
             let run_seconds = s_run.parse::<u32>().unwrap();
             let rest_seconds = s_rest.parse::<u32>().unwrap();
             Reindeer {
-                name,
+                _name,
                 speed,
                 run_seconds,
                 rest_seconds,
                 running: false,
                 left: 0,
                 distance: 0,
+                points: 0,
             }
         })
     }
@@ -177,4 +223,10 @@ Dancer can fly 7 km/s for 20 seconds, but then must rest for 119 seconds."#};
 fn test_a() {
     let answer = part_a();
     assert_eq!(2696, answer);
+}
+
+#[test]
+fn test_b() {
+    let answer = part_b();
+    assert_eq!(1084, answer);
 }
