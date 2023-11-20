@@ -51,7 +51,7 @@ use regex::Regex;
 use std::time::SystemTime;
 
 pub fn run() {
-    println!("--- Day 13: Knights of the Dinner Table --- ");
+    println!("--- Day 14: Reindeer Olympics --- ");
 
     let now = SystemTime::now();
     let answer_a = part_a();
