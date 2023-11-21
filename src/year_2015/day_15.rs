@@ -38,6 +38,21 @@
 //
 // Given the ingredients in your kitchen and their properties, what is the total score of the
 // highest-scoring cookie you can make?
+//
+// Your puzzle answer was 21367368.
+//
+// --- Part Two ---
+// Your cookie recipe becomes wildly popular! Someone asks if you can make another recipe that has
+// exactly 500 calories per cookie (so they can use it as a meal replacement). Keep the rest of your
+// award-winning process the same (100 teaspoons, same ingredients, same scoring system).
+//
+// For example, given the ingredients above, if you had instead selected 40 teaspoons of
+// butterscotch and 60 teaspoons of cinnamon (which still adds to 100), the total calorie count would
+// be 40*8 + 60*3 = 500. The total score would go down, though: only 57600000, the best you can do
+// in such trying circumstances.
+//
+// Given the ingredients in your kitchen and their properties, what is the total score of the
+// highest-scoring cookie you can make with a calorie total of 500?
 
 use indoc::indoc;
 use regex::Regex;
@@ -50,18 +65,18 @@ pub fn run() {
     let answer_a = part_a();
     let duration = now.elapsed().expect("Elapsed failed");
     println!(
-        "Given the ingredients in your kitchen and their properties, what is the total score of the highest-scoring cookie you can make?\n {}\n in {}ns",
+        "Given the ingredients in your kitchen and their properties, what is the total score of the highest-scoring cookie you can make?\n {}\n in {}ms",
         answer_a,
-        duration.as_nanos()
+        duration.as_millis()
     );
 
     let now = SystemTime::now();
     let answer_b = part_b();
     let duration = now.elapsed().expect("Elapsed failed");
     println!(
-        "Again given the descriptions of each reindeer (in your puzzle input), after exactly 2503 seconds, how many points does the winning reindeer have?\n {}\n in {}ns",
+        "Given the ingredients in your kitchen and their properties, what is the total score of the highest-scoring cookie you can make with a calorie total of 500\n {}\n in {}ms",
         answer_b,
-        duration.as_nanos()
+        duration.as_millis()
     );
 }
 
@@ -69,20 +84,27 @@ fn part_a() -> i64 {
     let ir = IngredientRegex::init();
 
     let mut ingredients: Vec<Ingredient> = Vec::new();
-    for line in _INPUT_SAMPLE.lines() {
+    for line in INPUT_A.lines() {
         if let Some(rd) = ir.parse(line) {
             ingredients.push(rd);
         }
     }
 
-    let q = vec![44, 56];
-    score(&ingredients, &q)
+    let ri = RecipeIterator::init(&ingredients, 100);
+
+    let mut best_score: i64 = 0;
+    for x in ri {
+        let s = score(&ingredients, &x);
+        best_score = i64::max(best_score, s);
+      //  println!("{:?} score: {}", x, s);
+    }
+    best_score
 }
 
 
 
 
-fn score(ingredients: &Vec<Ingredient>, quantities: &Vec<u8>) -> i64 {
+fn score(ingredients: &Vec<Ingredient>, quantities: &Vec<i64>) -> i64 {
     let mut cap = 0;
     let mut dur = 0;
     let mut fla = 0;
@@ -90,9 +112,9 @@ fn score(ingredients: &Vec<Ingredient>, quantities: &Vec<u8>) -> i64 {
 
     for i in 0..ingredients.len() {
         let ingredient = &ingredients[i];
-        let q = quantities[i] as i64;
+        let q = quantities[i];
         cap += ingredient.capacity * q;
-        dur +=ingredient.durability * q;
+        dur += ingredient.durability * q;
         fla += ingredient.flavor * q;
         tex += ingredient.texture * q;
     }
@@ -150,6 +172,67 @@ impl IngredientRegex {
 }
 
 
+struct RecipeIterator {
+    quantities: Vec<i64>,
+    total: i64,
+    done: bool,
+}
+impl RecipeIterator {
+    fn init(ingredients: &Vec<Ingredient>, total: i64) -> RecipeIterator {
+        RecipeIterator {
+            quantities: vec![0; ingredients.len()],
+            total,
+            done: false,
+        }
+    }
+
+    fn tick(&mut self) -> () {
+        let mut i: usize = self.quantities.len() - 1;
+
+        loop {
+            if self.quantities[i] == self.total {
+                if i == 0 {
+                    self.done = true;
+                    break
+                }
+                self.quantities[i] = 0;
+                i -= 1;
+            }
+            else {
+                self.quantities[i] += 1;
+                break;
+            }
+        }
+    }
+}
+
+impl Iterator for RecipeIterator {
+    type Item = Vec<i64>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            if self.done {
+                break
+            }
+
+            let sum: i64 = self.quantities.iter().sum();
+            if sum == self.total {
+                break
+            }
+
+            self.tick()
+        }
+
+        if self.done {
+            None
+        } else {
+            let ret = self.quantities.clone();
+            self.tick();
+            Some(ret)
+        }
+    }
+}
+
 const INPUT_REGEX: &str = "^(?<name>[a-zA-Z]+): capacity (?<cap>[-]?[0-9]+), durability (?<dur>[-]?[0-9]+), flavor (?<fla>[-]?[0-9]+), texture (?<tex>[-]?[0-9]+), calories (?<cal>[-]?[0-9]+)$";
 const _INPUT_SAMPLE: &str = indoc! {r#"
 Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8
@@ -164,8 +247,8 @@ Candy: capacity 0, durability -1, flavor 0, texture 5, calories 8"#};
 
 #[test]
 fn test_a() {
-    let _answer = part_a();
-  //  assert_eq!(2696, answer);
+    let answer = part_a();
+    assert_eq!(21367368, answer);
 }
 
 #[test]
