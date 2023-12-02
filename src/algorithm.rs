@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 use std::vec::Vec;
 
-// Returns a vector of all permutations of values within the set using a non-recurisve
-// version of Heap's algorithm: https://en.wikipedia.org/wiki/Heap%27s_algorithm
+/// Returns a vector of all permutations of values within the set using a non-recurisve
+/// version of Heap's algorithm: https://en.wikipedia.org/wiki/Heap%27s_algorithm
 pub fn heap_permutations(all_elements: &HashSet<String>) -> Vec<Vec<&str>> {
     let mut ret: Vec<Vec<&str>> = Vec::new();
     let mut elements: Vec<&str> = all_elements.into_iter().map(|x| x.as_str()).collect();
