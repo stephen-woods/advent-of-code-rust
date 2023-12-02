@@ -53,6 +53,8 @@
 //
 // Given the ingredients in your kitchen and their properties, what is the total score of the
 // highest-scoring cookie you can make with a calorie total of 500?
+//
+// Your puzzle answer was 1766400.
 
 use indoc::indoc;
 use regex::Regex;
@@ -90,13 +92,12 @@ fn part_a() -> i64 {
         }
     }
 
-    let mut r = RecipeA::init(&ingredients, 100);
-
+    let mut r = Recipe::init(ingredients, 100, 0);
     let mut best_score: i64 = 0;
 
     while !r.done {
-        r.advance();
-        let s = score(&ingredients, &r.quantities);
+        r.advance_part_a();
+        let s = r.score();
         best_score = i64::max(best_score, s);
     }
     best_score
@@ -112,43 +113,16 @@ fn part_b() -> i64 {
         }
     }
 
-    let mut r = RecipeB::init(&ingredients, 100, 500);
-
+    let mut r = Recipe::init(ingredients, 100, 500);
     let mut best_score: i64 = 0;
 
     while !r.done {
-        r.advance();
-        let s = score(&ingredients, &r.quantities);
+        r.advance_part_b();
+        let s = r.score();
         best_score = i64::max(best_score, s);
     }
     best_score
 }
-
-
-
-
-fn score(ingredients: &Vec<Ingredient>, quantities: &Vec<i64>) -> i64 {
-    let mut cap = 0;
-    let mut dur = 0;
-    let mut fla = 0;
-    let mut tex = 0;
-
-    for i in 0..ingredients.len() {
-        let ingredient = &ingredients[i];
-        let q = quantities[i];
-        cap += ingredient.capacity * q;
-        dur += ingredient.durability * q;
-        fla += ingredient.flavor * q;
-        tex += ingredient.texture * q;
-    }
-
-    i64::max(0, cap) *
-        i64::max(0,dur) *
-        i64::max(0,fla) *
-        i64::max(0,tex)
-}
-
-
 
 struct Ingredient {
     _name: String,
@@ -160,13 +134,13 @@ struct Ingredient {
 }
 
 struct IngredientRegex {
-    regex: Regex
+    regex: Regex,
 }
 
 impl IngredientRegex {
     fn init() -> IngredientRegex {
         IngredientRegex {
-            regex : Regex::new(INPUT_REGEX).unwrap(),
+            regex: Regex::new(INPUT_REGEX).unwrap(),
         }
     }
 
@@ -192,90 +166,57 @@ impl IngredientRegex {
     }
 }
 
-
-struct RecipeA<'a> {
-    ingredients: &'a Vec<Ingredient>,
+struct Recipe {
     quantities: Vec<i64>,
-    requested_teaspoons: i64,
-    done: bool,
-}
-
-impl RecipeA<'_> {
-    fn init(ingredients: &Vec<Ingredient>, requested_teaspoons: i64) -> RecipeA {
-        RecipeA {
-            ingredients,
-            quantities: vec![0; ingredients.len()],
-            requested_teaspoons,
-            done: false,
-        }
-    }
-
-    fn advance(&mut self) -> () {
-        loop {
-            if self.done {
-                break
-            }
-            self.tick();
-
-            let sum: i64 = self.quantities.iter().sum();
-            if sum == self.requested_teaspoons {
-                break
-            }
-        }
-    }
-
-    fn tick(&mut self) -> () {
-        let mut i: usize = self.quantities.len() - 1;
-
-        loop {
-            if self.quantities[i] == self.requested_teaspoons {
-                if i == 0 {
-                    self.done = true;
-                    break
-                }
-                self.quantities[i] = 0;
-                i -= 1;
-            }
-            else {
-                self.quantities[i] += 1;
-                break;
-            }
-        }
-    }
-}
-
-
-struct RecipeB<'a> {
-    ingredients: &'a Vec<Ingredient>,
-    quantities: Vec<i64>,
+    ingredients: Vec<Ingredient>,
     requested_teaspoons: i64,
     requested_calories: i64,
     done: bool,
 }
 
-impl RecipeB<'_> {
-    fn init(ingredients: &Vec<Ingredient>, requested_teaspoons: i64, requested_calories: i64) -> RecipeB {
-        RecipeB {
-            ingredients,
+impl Recipe {
+    fn init(
+        ingredients: Vec<Ingredient>,
+        requested_teaspoons: i64,
+        requested_calories: i64,
+    ) -> Recipe {
+        Recipe {
             quantities: vec![0; ingredients.len()],
+            ingredients,
             requested_teaspoons,
             requested_calories,
             done: false,
         }
     }
 
-    fn advance(&mut self) -> () {
+    fn advance_part_a(&mut self) -> () {
         loop {
             if self.done {
-                break
+                break;
             }
             self.tick();
 
+            // Stop advancing if we have a full recipe
+            let sum: i64 = self.quantities.iter().sum();
+            if sum == self.requested_teaspoons {
+                break;
+            }
+        }
+    }
+    
+    fn advance_part_b(&mut self) -> () {
+        loop {
+            if self.done {
+                break;
+            }
+            self.tick();
+
+            // Stop advancing if we have a full recipe AND it has a total of 500 calories
             let sum: i64 = self.quantities.iter().sum();
             if sum == self.requested_teaspoons {
                 let cal = self.calculate_calories();
                 if cal == self.requested_calories {
-                    break
+                    break;
                 }
             }
         }
@@ -288,12 +229,11 @@ impl RecipeB<'_> {
             if self.quantities[i] == self.requested_teaspoons {
                 if i == 0 {
                     self.done = true;
-                    break
+                    break;
                 }
                 self.quantities[i] = 0;
                 i -= 1;
-            }
-            else {
+            } else {
                 self.quantities[i] += 1;
                 break;
             }
@@ -309,17 +249,25 @@ impl RecipeB<'_> {
         }
         ret
     }
-}
 
-// fn calculate_calories(self) -> i64 {
-//         let mut ret = 0i64;
-//         for i in 0..self.quantities.len() {
-//             let ic = self.ingredients[i].calories;
-//             let iq = self.quantities[i];
-//             ret += ic * iq;
-//         }
-//         4
-//     }
+    fn score(&self) -> i64 {
+        let mut cap = 0;
+        let mut dur = 0;
+        let mut fla = 0;
+        let mut tex = 0;
+
+        for i in 0..self.ingredients.len() {
+            let ingredient = &self.ingredients[i];
+            let q = self.quantities[i];
+            cap += ingredient.capacity * q;
+            dur += ingredient.durability * q;
+            fla += ingredient.flavor * q;
+            tex += ingredient.texture * q;
+        }
+
+        i64::max(0, cap) * i64::max(0, dur) * i64::max(0, fla) * i64::max(0, tex)
+    }
+}
 
 const INPUT_REGEX: &str = "^(?<name>[a-zA-Z]+): capacity (?<cap>[-]?[0-9]+), durability (?<dur>[-]?[0-9]+), flavor (?<fla>[-]?[0-9]+), texture (?<tex>[-]?[0-9]+), calories (?<cal>[-]?[0-9]+)$";
 const _INPUT_SAMPLE: &str = indoc! {r#"
@@ -341,6 +289,6 @@ fn test_a() {
 
 #[test]
 fn test_b() {
-    let _answer = part_b();
-  //  assert_eq!(1084, answer);
+    let answer = part_b();
+    assert_eq!(1766400, answer);
 }
