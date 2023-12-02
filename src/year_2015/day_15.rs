@@ -90,13 +90,36 @@ fn part_a() -> i64 {
         }
     }
 
-    let ri = RecipeIterator::init(&ingredients, 100);
+    let mut r = RecipeA::init(&ingredients, 100);
 
     let mut best_score: i64 = 0;
-    for x in ri {
-        let s = score(&ingredients, &x);
+
+    while !r.done {
+        r.advance();
+        let s = score(&ingredients, &r.quantities);
         best_score = i64::max(best_score, s);
-      //  println!("{:?} score: {}", x, s);
+    }
+    best_score
+}
+
+fn part_b() -> i64 {
+    let ir = IngredientRegex::init();
+
+    let mut ingredients: Vec<Ingredient> = Vec::new();
+    for line in INPUT_A.lines() {
+        if let Some(rd) = ir.parse(line) {
+            ingredients.push(rd);
+        }
+    }
+
+    let mut r = RecipeB::init(&ingredients, 100, 500);
+
+    let mut best_score: i64 = 0;
+
+    while !r.done {
+        r.advance();
+        let s = score(&ingredients, &r.quantities);
+        best_score = i64::max(best_score, s);
     }
     best_score
 }
@@ -125,9 +148,7 @@ fn score(ingredients: &Vec<Ingredient>, quantities: &Vec<i64>) -> i64 {
         i64::max(0,tex)
 }
 
-fn part_b() -> u32 {
-    3
-}
+
 
 struct Ingredient {
     _name: String,
@@ -172,17 +193,34 @@ impl IngredientRegex {
 }
 
 
-struct RecipeIterator {
+struct RecipeA<'a> {
+    ingredients: &'a Vec<Ingredient>,
     quantities: Vec<i64>,
-    total: i64,
+    requested_teaspoons: i64,
     done: bool,
 }
-impl RecipeIterator {
-    fn init(ingredients: &Vec<Ingredient>, total: i64) -> RecipeIterator {
-        RecipeIterator {
+
+impl RecipeA<'_> {
+    fn init(ingredients: &Vec<Ingredient>, requested_teaspoons: i64) -> RecipeA {
+        RecipeA {
+            ingredients,
             quantities: vec![0; ingredients.len()],
-            total,
+            requested_teaspoons,
             done: false,
+        }
+    }
+
+    fn advance(&mut self) -> () {
+        loop {
+            if self.done {
+                break
+            }
+            self.tick();
+
+            let sum: i64 = self.quantities.iter().sum();
+            if sum == self.requested_teaspoons {
+                break
+            }
         }
     }
 
@@ -190,7 +228,7 @@ impl RecipeIterator {
         let mut i: usize = self.quantities.len() - 1;
 
         loop {
-            if self.quantities[i] == self.total {
+            if self.quantities[i] == self.requested_teaspoons {
                 if i == 0 {
                     self.done = true;
                     break
@@ -206,32 +244,82 @@ impl RecipeIterator {
     }
 }
 
-impl Iterator for RecipeIterator {
-    type Item = Vec<i64>;
 
-    fn next(&mut self) -> Option<Self::Item> {
+struct RecipeB<'a> {
+    ingredients: &'a Vec<Ingredient>,
+    quantities: Vec<i64>,
+    requested_teaspoons: i64,
+    requested_calories: i64,
+    done: bool,
+}
+
+impl RecipeB<'_> {
+    fn init(ingredients: &Vec<Ingredient>, requested_teaspoons: i64, requested_calories: i64) -> RecipeB {
+        RecipeB {
+            ingredients,
+            quantities: vec![0; ingredients.len()],
+            requested_teaspoons,
+            requested_calories,
+            done: false,
+        }
+    }
+
+    fn advance(&mut self) -> () {
         loop {
             if self.done {
                 break
             }
+            self.tick();
 
             let sum: i64 = self.quantities.iter().sum();
-            if sum == self.total {
-                break
+            if sum == self.requested_teaspoons {
+                let cal = self.calculate_calories();
+                if cal == self.requested_calories {
+                    break
+                }
             }
-
-            self.tick()
-        }
-
-        if self.done {
-            None
-        } else {
-            let ret = self.quantities.clone();
-            self.tick();
-            Some(ret)
         }
     }
+
+    fn tick(&mut self) -> () {
+        let mut i: usize = self.quantities.len() - 1;
+
+        loop {
+            if self.quantities[i] == self.requested_teaspoons {
+                if i == 0 {
+                    self.done = true;
+                    break
+                }
+                self.quantities[i] = 0;
+                i -= 1;
+            }
+            else {
+                self.quantities[i] += 1;
+                break;
+            }
+        }
+    }
+
+    fn calculate_calories(&self) -> i64 {
+        let mut ret = 0i64;
+        for i in 0..self.quantities.len() {
+            let ic = self.ingredients[i].calories;
+            let iq = self.quantities[i];
+            ret += ic * iq;
+        }
+        ret
+    }
 }
+
+// fn calculate_calories(self) -> i64 {
+//         let mut ret = 0i64;
+//         for i in 0..self.quantities.len() {
+//             let ic = self.ingredients[i].calories;
+//             let iq = self.quantities[i];
+//             ret += ic * iq;
+//         }
+//         4
+//     }
 
 const INPUT_REGEX: &str = "^(?<name>[a-zA-Z]+): capacity (?<cap>[-]?[0-9]+), durability (?<dur>[-]?[0-9]+), flavor (?<fla>[-]?[0-9]+), texture (?<tex>[-]?[0-9]+), calories (?<cal>[-]?[0-9]+)$";
 const _INPUT_SAMPLE: &str = indoc! {r#"
