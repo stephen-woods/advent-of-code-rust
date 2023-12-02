@@ -20,6 +20,7 @@ pub fn run(year: u32, day: u8) {
         (2015, 12) => year_2015::day_12::run(),
         (2015, 13) => year_2015::day_13::run(),
         (2015, 14) => year_2015::day_14::run(),
+        (2015, 15) => year_2015::day_15::run(),
         _ => println!("--- Day {}: Not implemented!", day),
     }
 }
