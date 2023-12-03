@@ -73,7 +73,6 @@ pub fn run() {
     println!(" in {}ns", duration.as_nanos());
 }
 
-
 fn part_a() -> usize {
     let mut a_answer = 0;
     for line in INPUT_A.lines() {
@@ -82,7 +81,6 @@ fn part_a() -> usize {
     }
     a_answer
 }
-
 
 fn part_b() -> usize {
     let mut b_answer = 0;
@@ -93,11 +91,9 @@ fn part_b() -> usize {
     b_answer
 }
 
-
 fn code_length(s: &str) -> usize {
     s.len()
 }
-
 
 fn in_memory_length(s: &str) -> usize {
     let s_index = 1;
@@ -122,7 +118,6 @@ fn in_memory_length(s: &str) -> usize {
     length
 }
 
-
 fn encoded_length(s: &str) -> usize {
     let mut length = 0;
     let mut i = 0;
@@ -130,7 +125,7 @@ fn encoded_length(s: &str) -> usize {
     let sample_length = sample.len();
     while i != sample_length {
         let c = sample[i];
-        if c == b'"' || c == b'\\'  {
+        if c == b'"' || c == b'\\' {
             length += 2;
         } else {
             length += 1;

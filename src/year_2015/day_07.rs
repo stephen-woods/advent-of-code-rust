@@ -57,8 +57,8 @@
 
 use indoc::indoc;
 use regex::Regex;
-use std::time::SystemTime;
 use std::collections::HashMap;
+use std::time::SystemTime;
 
 pub fn run() {
     println!("--- Day 7: Some Assembly Required ---");
@@ -78,7 +78,6 @@ pub fn run() {
     println!(" in {}ms", duration.as_millis());
 }
 
-
 fn part_a() -> u16 {
     let dr = DayRegex::init();
 
@@ -89,13 +88,12 @@ fn part_a() -> u16 {
         }
     }
 
-    let mut eval_map : HashMap<String, u16> = HashMap::new();
+    let mut eval_map: HashMap<String, u16> = HashMap::new();
     let wire = "a";
     solve(&input_map, &mut eval_map, wire);
     let p_answer = eval_map.get(wire).unwrap();
     *p_answer
 }
-
 
 fn part_b() -> u16 {
     let dr = DayRegex::init();
@@ -107,7 +105,7 @@ fn part_b() -> u16 {
         }
     }
 
-    let mut eval_map : HashMap<String, u16> = HashMap::new();
+    let mut eval_map: HashMap<String, u16> = HashMap::new();
     solve(&input_map, &mut eval_map, "a");
     let a_answer = *(eval_map.get("a").unwrap());
 
@@ -116,18 +114,16 @@ fn part_b() -> u16 {
     let new_b = Gate::Value(a_answer);
     input_map.insert(String::from("b"), new_b);
     eval_map.clear();
-    
+
     solve(&input_map, &mut eval_map, "a");
-     *(eval_map.get("a").unwrap())
+    *(eval_map.get("a").unwrap())
 }
 
-
-fn solve(input_map: &HashMap<String, Gate>,
-         eval_map: &mut HashMap<String, u16>,
-         wire: &str) {
-
+fn solve(input_map: &HashMap<String, Gate>, eval_map: &mut HashMap<String, u16>, wire: &str) {
     if !eval_map.contains_key(wire) {
-        let gate = input_map.get(wire).unwrap_or_else(||panic!("Missing gate for wire: {wire}"));
+        let gate = input_map
+            .get(wire)
+            .unwrap_or_else(|| panic!("Missing gate for wire: {wire}"));
         match gate {
             Gate::Value(v) => {
                 eval_map.insert(wire.to_string(), *v);
@@ -168,10 +164,11 @@ fn solve(input_map: &HashMap<String, Gate>,
     }
 }
 
-
-fn lit_or_solve(input_map: &HashMap<String, Gate>,
-                eval_map: &mut HashMap<String, u16>,
-                wire: &str) -> u16 {
+fn lit_or_solve(
+    input_map: &HashMap<String, Gate>,
+    eval_map: &mut HashMap<String, u16>,
+    wire: &str,
+) -> u16 {
     // Literal value or solve
     match wire.parse::<u16>() {
         Ok(literal) => literal,
@@ -181,7 +178,6 @@ fn lit_or_solve(input_map: &HashMap<String, Gate>,
         }
     }
 }
-
 
 #[derive(Debug)]
 enum Gate {
@@ -196,7 +192,6 @@ enum Gate {
 
 impl Gate {
     fn from(s: &str, dr: &DayRegex) -> Option<(String, Gate)> {
-
         let ret;
         if let Some(g) = dr.parse_value(s) {
             ret = Some(g);
@@ -233,105 +228,102 @@ impl DayRegex {
     fn init() -> DayRegex {
         DayRegex {
             value: Regex::new(r"^(?<value>[0-9]+) -> (?<key>[a-z]+)$").unwrap(), // 123 -> x
-            wire: Regex::new(r"^(?<wire>[a-z]+) -> (?<key>[a-z]+)$").unwrap(), // y -> x
-            and: Regex::new(r"^(?<wire_a>[0-9a-z]+) AND (?<wire_b>[0-9a-z]+) -> (?<key>[a-z]+)$").unwrap(), // lf AND lq -> ls
-            or: Regex::new(r"^(?<wire_a>[0-9a-z]+) OR (?<wire_b>[0-9a-z]+) -> (?<key>[a-z]+)$").unwrap(), // kl OR kr -> ks
-            lshift: Regex::new(r"^(?<wire>[a-z]+) LSHIFT (?<value>[0-9]+) -> (?<key>[a-z]+)$").unwrap(), // fj LSHIFT 15 -> fn
-            rshift: Regex::new(r"^(?<wire>[a-z]+) RSHIFT (?<value>[0-9]+) -> (?<key>[a-z]+)$").unwrap(), // fj RSHIFT 15 -> fn
+            wire: Regex::new(r"^(?<wire>[a-z]+) -> (?<key>[a-z]+)$").unwrap(),   // y -> x
+            and: Regex::new(r"^(?<wire_a>[0-9a-z]+) AND (?<wire_b>[0-9a-z]+) -> (?<key>[a-z]+)$")
+                .unwrap(), // lf AND lq -> ls
+            or: Regex::new(r"^(?<wire_a>[0-9a-z]+) OR (?<wire_b>[0-9a-z]+) -> (?<key>[a-z]+)$")
+                .unwrap(), // kl OR kr -> ks
+            lshift: Regex::new(r"^(?<wire>[a-z]+) LSHIFT (?<value>[0-9]+) -> (?<key>[a-z]+)$")
+                .unwrap(), // fj LSHIFT 15 -> fn
+            rshift: Regex::new(r"^(?<wire>[a-z]+) RSHIFT (?<value>[0-9]+) -> (?<key>[a-z]+)$")
+                .unwrap(), // fj RSHIFT 15 -> fn
             not: Regex::new(r"^NOT (?<wire>[a-z]+) -> (?<key>[a-z]+)$").unwrap(),
         }
     }
 
     fn parse_value(&self, s: &str) -> Option<(String, Gate)> {
-        self.value.captures(s)
-            .map(|c| {
-                let value = c.name("value").unwrap().as_str();
-                let key = c.name("key").unwrap().as_str();
+        self.value.captures(s).map(|c| {
+            let value = c.name("value").unwrap().as_str();
+            let key = c.name("key").unwrap().as_str();
 
-                let k = String::from(key);
-                let v: u16 = value.parse().unwrap();
-                (k, Gate::Value(v))
-            })
+            let k = String::from(key);
+            let v: u16 = value.parse().unwrap();
+            (k, Gate::Value(v))
+        })
     }
 
     fn parse_wire(&self, s: &str) -> Option<(String, Gate)> {
-        self.wire.captures(s)
-            .map(|c| {
-                let value = c.name("wire").unwrap().as_str();
-                let key = c.name("key").unwrap().as_str();
+        self.wire.captures(s).map(|c| {
+            let value = c.name("wire").unwrap().as_str();
+            let key = c.name("key").unwrap().as_str();
 
-                let k = String::from(key);
-                let w = String::from(value);
-                (k, Gate::Wire(w))
-            })
+            let k = String::from(key);
+            let w = String::from(value);
+            (k, Gate::Wire(w))
+        })
     }
 
     fn parse_and(&self, s: &str) -> Option<(String, Gate)> {
-        self.and.captures(s)
-            .map(|c| {
-                let wire_a = c.name("wire_a").unwrap().as_str();
-                let wire_b = c.name("wire_b").unwrap().as_str();
-                let key = c.name("key").unwrap().as_str();
+        self.and.captures(s).map(|c| {
+            let wire_a = c.name("wire_a").unwrap().as_str();
+            let wire_b = c.name("wire_b").unwrap().as_str();
+            let key = c.name("key").unwrap().as_str();
 
-                let k = String::from(key);
-                let wa = String::from(wire_a);
-                let wb = String::from(wire_b);
-                (k, Gate::And(wa, wb))
-            })
+            let k = String::from(key);
+            let wa = String::from(wire_a);
+            let wb = String::from(wire_b);
+            (k, Gate::And(wa, wb))
+        })
     }
 
     fn parse_or(&self, s: &str) -> Option<(String, Gate)> {
-        self.or.captures(s)
-            .map(|c| {
-                let wire_a = c.name("wire_a").unwrap().as_str();
-                let wire_b = c.name("wire_b").unwrap().as_str();
-                let key = c.name("key").unwrap().as_str();
+        self.or.captures(s).map(|c| {
+            let wire_a = c.name("wire_a").unwrap().as_str();
+            let wire_b = c.name("wire_b").unwrap().as_str();
+            let key = c.name("key").unwrap().as_str();
 
-                let k = String::from(key);
-                let wa = String::from(wire_a);
-                let wb = String::from(wire_b);
-                (k, Gate::Or(wa, wb))
-            })
+            let k = String::from(key);
+            let wa = String::from(wire_a);
+            let wb = String::from(wire_b);
+            (k, Gate::Or(wa, wb))
+        })
     }
 
     fn parse_lshift(&self, s: &str) -> Option<(String, Gate)> {
-        self.lshift.captures(s)
-            .map(|c| {
-                let wire = c.name("wire").unwrap().as_str();
-                let value = c.name("value").unwrap().as_str();
-                let key = c.name("key").unwrap().as_str();
+        self.lshift.captures(s).map(|c| {
+            let wire = c.name("wire").unwrap().as_str();
+            let value = c.name("value").unwrap().as_str();
+            let key = c.name("key").unwrap().as_str();
 
-                let k = String::from(key);
-                let w = String::from(wire);
-                let v: u16 = value.parse().unwrap();
-                (k, Gate::LShift(w, v))
-            })
+            let k = String::from(key);
+            let w = String::from(wire);
+            let v: u16 = value.parse().unwrap();
+            (k, Gate::LShift(w, v))
+        })
     }
 
     fn parse_rshift(&self, s: &str) -> Option<(String, Gate)> {
-        self.rshift.captures(s)
-            .map(|c| {
-                let wire = c.name("wire").unwrap().as_str();
-                let value = c.name("value").unwrap().as_str();
-                let key = c.name("key").unwrap().as_str();
+        self.rshift.captures(s).map(|c| {
+            let wire = c.name("wire").unwrap().as_str();
+            let value = c.name("value").unwrap().as_str();
+            let key = c.name("key").unwrap().as_str();
 
-                let k = String::from(key);
-                let w = String::from(wire);
-                let v: u16 = value.parse().unwrap();
-                (k, Gate::RShift(w, v))
-            })
+            let k = String::from(key);
+            let w = String::from(wire);
+            let v: u16 = value.parse().unwrap();
+            (k, Gate::RShift(w, v))
+        })
     }
 
     fn parse_not(&self, s: &str) -> Option<(String, Gate)> {
-        self.not.captures(s)
-            .map(|c| {
-                let value = c.name("wire").unwrap().as_str();
-                let key = c.name("key").unwrap().as_str();
+        self.not.captures(s).map(|c| {
+            let value = c.name("wire").unwrap().as_str();
+            let key = c.name("key").unwrap().as_str();
 
-                let k = String::from(key);
-                let w = String::from(value);
-                (k, Gate::Not(w))
-            })
+            let k = String::from(key);
+            let w = String::from(value);
+            (k, Gate::Not(w))
+        })
     }
 }
 

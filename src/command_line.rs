@@ -1,4 +1,3 @@
-
 use frunk::hlist_pat;
 use frunk::prelude::*;
 use std::env;
@@ -13,13 +12,9 @@ where
         println!("Usage cargo run -- <year> <day>");
         return;
     } else {
-        let year = args[1]
-            .parse::<u32>()
-            .map_err(|_| "Year must be a number");
+        let year = args[1].parse::<u32>().map_err(|_| "Year must be a number");
 
-        let day = args[2]
-            .parse::<u8>()
-            .map_err(|_| "Day must be a number");
+        let day = args[2].parse::<u8>().map_err(|_| "Day must be a number");
 
         let vs = (year.into_validated() + day)
             .into_result()

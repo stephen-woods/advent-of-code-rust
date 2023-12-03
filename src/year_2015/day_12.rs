@@ -85,7 +85,7 @@ fn walk_numbers_non_red(v: &Value) -> i64 {
     fn kv_walk_numbers_non_red(kv: (&String, &Value)) -> i64 {
         walk_numbers_non_red(kv.1)
     }
-    
+
     fn kv_is_red(kv: (&String, &Value)) -> bool {
         match kv.1 {
             Value::String(s) => s == ("red"),

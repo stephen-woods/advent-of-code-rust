@@ -50,12 +50,20 @@ pub fn run() {
     let now = SystemTime::now();
     let answer_a = part_a();
     let duration = now.elapsed().expect("Elapsed failed");
-    println!("How many total square feet of wrapping paper should they order?\n {}\n in {}ns", answer_a, duration.as_nanos());
+    println!(
+        "How many total square feet of wrapping paper should they order?\n {}\n in {}ns",
+        answer_a,
+        duration.as_nanos()
+    );
 
     let now = SystemTime::now();
     let answer_b = part_b();
     let duration = now.elapsed().expect("Elapsed failed");
-    println!("How many total feet of ribbon should they order?\n {}\n in {}ns", answer_b, duration.as_nanos());
+    println!(
+        "How many total feet of ribbon should they order?\n {}\n in {}ns",
+        answer_b,
+        duration.as_nanos()
+    );
 }
 
 fn part_a() -> u32 {
@@ -137,7 +145,7 @@ impl Present {
     }
 
     fn ribbon_for_bow(&self) -> u32 {
-        self.length * self.width* self.height
+        self.length * self.width * self.height
     }
 }
 
@@ -1142,7 +1150,6 @@ const INPUT_A: &str = indoc! {r#"
 21x29x14
 20x29x30
 23x11x5"#};
-
 
 #[test]
 fn test_a() {

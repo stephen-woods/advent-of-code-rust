@@ -49,9 +49,9 @@
 //
 // Your puzzle answer was 55.
 
+use indoc::indoc;
 use std::collections::HashMap;
 use std::time::SystemTime;
-use indoc::indoc;
 
 pub fn run() {
     println!("--- Doesn't He Have Intern-Elves For This? ---");
@@ -91,14 +91,13 @@ fn part_b() -> u32 {
     count
 }
 
-
 fn nice_str_a(s: &str) -> bool {
     fn contains_vowels(s: &str, num: u32) -> bool {
         let mut i: u32 = 0;
         for c in s.chars() {
             match c {
                 'a' | 'e' | 'i' | 'o' | 'u' => i += 1,
-                _ => ()
+                _ => (),
             }
             if i >= num {
                 return true;
@@ -129,7 +128,6 @@ fn nice_str_a(s: &str) -> bool {
     let must_nots = ["ab", "cd", "pq", "xy"];
     contains_vowels(s, 3) && contains_doubles(s) && !contains_any_substring(s, &must_nots)
 }
-
 
 fn nice_str_b(s: &str) -> bool {
     fn pair_not_overlapping(s: &str) -> bool {
@@ -166,7 +164,6 @@ fn nice_str_b(s: &str) -> bool {
     }
     pair_not_overlapping(s) && pair_diff_inbetween(s)
 }
-
 
 const INPUT_A: &str = indoc! {r#"
 sszojmmrrkwuftyv
