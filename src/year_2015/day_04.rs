@@ -21,7 +21,7 @@
 //
 // Your puzzle answer was 9962624.
 
-use md5::{Md5, Digest};
+use md5::{Digest, Md5};
 use std::time::SystemTime;
 
 pub fn run() {
@@ -63,7 +63,7 @@ fn mine(prefix: &str) -> u64 {
         let result = format!("{:x}", result_as_bytes);
         found = result.starts_with(prefix);
     }
-    return x
+    return x;
 }
 
 const INPUT_A: &str = "yzbqklnj";

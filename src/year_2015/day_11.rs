@@ -82,7 +82,8 @@ fn next_password(current: &str) -> String {
     while !found {
         if check_contains_straight(&vd, 3)
             && check_consecutive_duplicates(&vd, 2)
-            && check_contains_valid(&vd, &sorted_invalids){
+            && check_contains_valid(&vd, &sorted_invalids)
+        {
             found = true
         } else {
             r26 += 1;
@@ -92,7 +93,6 @@ fn next_password(current: &str) -> String {
 
     reverse_digits_to_string(&vd)
 }
-
 
 fn str_to_u64(s: &str, radix: u64, ascii_base: u8) -> u64 {
     let zero: u64 = 0;
@@ -113,26 +113,26 @@ fn ascii_char_to_radix26(s: &str) -> u8 {
     (*c as u8) - 97
 }
 
-
 fn u64_to_reverse_digits(n: u64, radix: u64) -> Vec<u8> {
- // Returned Vec will have digits in reverse order.
- let mut ret: Vec<u8> = Vec::new();
+    // Returned Vec will have digits in reverse order.
+    let mut ret: Vec<u8> = Vec::new();
 
- let mut num: u64 = n;
- loop {
-     let m: u8 = (num % radix) as u8;
-     num = num / radix;
+    let mut num: u64 = n;
+    loop {
+        let m: u8 = (num % radix) as u8;
+        num = num / radix;
 
-     ret.push(m);
-     if num == 0 {
-         break;
-     }
- }
- ret
+        ret.push(m);
+        if num == 0 {
+            break;
+        }
+    }
+    ret
 }
 
 fn reverse_digits_to_string(vd: &Vec<u8>) -> String {
-    vd.into_iter().rev()
+    vd.into_iter()
+        .rev()
         .map(|x| char::from_u32(u32::from(*x) + 97).unwrap())
         .collect()
 }

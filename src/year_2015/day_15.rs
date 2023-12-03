@@ -203,7 +203,7 @@ impl Recipe {
             }
         }
     }
-    
+
     fn advance_part_b(&mut self) -> () {
         loop {
             if self.done {

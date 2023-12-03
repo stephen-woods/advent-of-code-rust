@@ -99,7 +99,6 @@ fn look_say(look: Vec<u32>) -> String {
 
 const INPUT_A: &str = "1321131112";
 
-
 #[test]
 fn test_a() {
     let result = part_a();

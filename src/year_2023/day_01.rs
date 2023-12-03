@@ -58,9 +58,13 @@
 /// together produces 281.
 ///
 /// What is the sum of all of the calibration values?
+///
+/// Your puzzle answer was 54418.
 use indoc::indoc;
+use std::str::Chars;
 use std::time::SystemTime;
 use unicode_segmentation::UnicodeSegmentation;
+
 pub fn run() {
     println!("--- Day 1: Trebuchet?! ---");
 
@@ -77,9 +81,9 @@ pub fn run() {
     let answer_b = part_b();
     let duration = now.elapsed().expect("Elapsed failed");
     println!(
-        "What is the sum of all of the calibration values?\n {}\n in {}ns",
+        "What is the sum of all of the calibration values?\n {}\n in {}ms",
         answer_b,
-        duration.as_nanos()
+        duration.as_millis()
     );
 }
 
@@ -97,12 +101,16 @@ fn part_a() -> u32 {
     sum
 }
 
+
 fn part_b() -> u32 {
     let mut sum = 0u32;
 
-    let tokens: Vec<&str> = vec![
+    let tokens: Vec<String> = vec![
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-    ];
+    ]
+    .into_iter()
+    .map(str::to_owned)
+    .collect();
 
     let reversed_tokens = tokens
         .iter()
@@ -110,51 +118,50 @@ fn part_b() -> u32 {
         .collect::<Vec<String>>();
 
     for line in INPUT_B.lines() {
-        let mut frag = String::new();
-        let mut left: u32 = 0;
-        let mut right: u32 = 0;
+        let reversed_line = line.graphemes(true).rev().collect::<String>();
+        let left: u32 = find_digit(line.chars(), &tokens);
+        let right: u32 = find_digit(reversed_line.chars(), &reversed_tokens);
 
-        for x in line.chars() {
-            if x.is_ascii_digit() {
-                left = x.to_digit(10).unwrap();
-                break;
-            }
-
-            frag.push(x);
-            if let Some(pos) = tokens.iter().position(|t| *t == frag) {
-                left = pos as u32 + 1;
-                break;
-            }
-
-            if !tokens.iter().any(|t| t.starts_with(&frag)) {
-                frag.clear();
-            }
-        }
-
-        frag.clear();
-
-        for x in line.chars().rev() {
-            if x.is_ascii_digit() {
-                right = x.to_digit(10).unwrap();
-                break;
-            }
-
-            frag.push(x);
-            if let Some(pos) = reversed_tokens.iter().position(|t| *t == frag) {
-                right = pos as u32 + 1;
-                break;
-            }
-
-            if !reversed_tokens.iter().any(|t| t.starts_with(&frag)) {
-                frag.clear();
-            }
-        }
-        println!("Stuff {}  {}{}", line, left, right);
+        // println!("Stuff {}  {}{}", line, left, right);
 
         sum += left * 10;
         sum += right;
     }
     sum
+}
+
+fn find_digit(chars: Chars, tokens: &Vec<String>) -> u32 {
+    let mut frag = String::new();
+    for c in chars {
+        match c.to_digit(10) {
+            Some(d) => return d,
+            None => {
+                frag.push(c);
+
+                loop {
+                    // Check for an exact match
+                    if let Some(pos) = tokens.iter().position(|t| *t == frag) {
+                        return pos as u32 + 1;
+                    }
+
+                    // Attempt to remove head of frag until a token starts with head or frag is empty
+                    if !tokens.iter().any(|t| t.starts_with(&frag)) {
+                        if frag.len() == 1 {
+                            frag.clear();
+                            break;
+                        }
+
+                        let mut it = frag.chars();
+                        it.next();
+                        frag = it.collect::<String>();
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    0
 }
 
 const _INPUT_SAMPLE_A: &str = indoc! {r#"
@@ -1174,8 +1181,6 @@ xtwone3four
 zoneight234
 7pqrstsixteen"#};
 
-const _BROKEN: &str = indoc! {r#"jsthree48"#};
-
 const INPUT_B: &str = indoc! {r#"
 8eight1
 98126
@@ -2186,6 +2191,6 @@ fn test_a() {
 
 #[test]
 fn test_b() {
-    let _answer = part_b();
-    //assert_eq!(54304, answer);
+    let answer = part_b();
+    assert_eq!(54418, answer);
 }

@@ -118,7 +118,9 @@ fn start_distance_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
         time += 1;
     }
 
-    racers.iter().fold(0, |farthest, r| u32::max(farthest, r.distance))
+    racers
+        .iter()
+        .fold(0, |farthest, r| u32::max(farthest, r.distance))
 }
 
 fn start_points_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
@@ -151,7 +153,7 @@ fn start_points_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
         }
         time += 1;
     }
-    
+
     racers.iter().fold(0, |most, r| u32::max(most, r.points))
 }
 

@@ -39,8 +39,8 @@
 // Your puzzle answer was 2360.
 
 use indoc::indoc;
-use std::collections::HashMap;
 use std::clone::Clone;
+use std::collections::HashMap;
 use std::time::SystemTime;
 
 pub fn run() {
@@ -49,12 +49,20 @@ pub fn run() {
     let now = SystemTime::now();
     let answer_a = part_a();
     let duration = now.elapsed().expect("Elapsed failed");
-    println!("How many houses receive at least one present?\n {}\n in {}ns", answer_a, duration.as_nanos());
+    println!(
+        "How many houses receive at least one present?\n {}\n in {}ns",
+        answer_a,
+        duration.as_nanos()
+    );
 
     let now = SystemTime::now();
     let answer_b = part_b();
     let duration = now.elapsed().expect("Elapsed failed");
-    println!("This year, how many houses receive at least one present?\n {}\n in {}ns", answer_b, duration.as_nanos());
+    println!(
+        "This year, how many houses receive at least one present?\n {}\n in {}ns",
+        answer_b,
+        duration.as_nanos()
+    );
 }
 
 fn part_a() -> u32 {
@@ -111,7 +119,7 @@ impl Pos {
             '>' => self.x += 1,
             'v' => self.y -= 1,
             '^' => self.y += 1,
-            _ => ()
+            _ => (),
         }
     }
 }

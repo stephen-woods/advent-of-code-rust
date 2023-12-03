@@ -100,7 +100,7 @@ fn part_b() -> i32 {
     happiest(seatings, relationships)
 }
 
-fn all_knights_and_relationships(input: &str) ->  (HashSet<String>, HashMap<(String, String), i32>)  {
+fn all_knights_and_relationships(input: &str) -> (HashSet<String>, HashMap<(String, String), i32>) {
     let kr = KnightRegex::init();
     let mut all_knights: HashSet<String> = HashSet::new();
 
@@ -114,7 +114,7 @@ fn all_knights_and_relationships(input: &str) ->  (HashSet<String>, HashMap<(Str
     (all_knights, relationships)
 }
 
-fn happiest(seatings: Vec<Vec<&str>>, relationships:  HashMap<(String, String), i32>) -> i32 {
+fn happiest(seatings: Vec<Vec<&str>>, relationships: HashMap<(String, String), i32>) -> i32 {
     let mut answer = i32::MIN;
     for seating in seatings {
         let x = calculate_happiness(&seating, &relationships);
@@ -137,15 +137,11 @@ fn calculate_happiness(seating: &Vec<&str>, relationships: &HashMap<(String, Str
     for ab in seating_pairs {
         // We need to consider happiness in both directions between knights
         let key = &(ab[0].to_string(), ab[1].to_string());
-        let h = relationships
-            .get(key)
-            .unwrap_or(&0);
+        let h = relationships.get(key).unwrap_or(&0);
         total += *h;
 
         let key = &(ab[1].to_string(), ab[0].to_string());
-        let h = relationships
-            .get(key)
-            .unwrap_or(&0);
+        let h = relationships.get(key).unwrap_or(&0);
         total += *h;
     }
 
