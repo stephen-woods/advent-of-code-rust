@@ -98,7 +98,7 @@ fn code_length(s: &str) -> usize {
 fn in_memory_length(s: &str) -> usize {
     let s_index = 1;
     let e_index = s.len() - 1;
-    let sample = s[s_index..e_index].as_bytes();
+    let sample = &s.as_bytes()[s_index..e_index];
 
     let mut length = 0;
     let mut i = 0;

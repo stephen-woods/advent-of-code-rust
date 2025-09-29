@@ -189,7 +189,7 @@ impl Recipe {
         }
     }
 
-    fn advance_part_a(&mut self) -> () {
+    fn advance_part_a(&mut self) {
         loop {
             if self.done {
                 break;
@@ -204,7 +204,7 @@ impl Recipe {
         }
     }
 
-    fn advance_part_b(&mut self) -> () {
+    fn advance_part_b(&mut self) {
         loop {
             if self.done {
                 break;
@@ -222,7 +222,7 @@ impl Recipe {
         }
     }
 
-    fn tick(&mut self) -> () {
+    fn tick(&mut self) {
         let mut i: usize = self.quantities.len() - 1;
 
         loop {

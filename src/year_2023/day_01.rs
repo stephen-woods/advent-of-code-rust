@@ -130,7 +130,7 @@ fn part_b() -> u32 {
     sum
 }
 
-fn find_digit(chars: Chars, tokens: &Vec<String>) -> u32 {
+fn find_digit(chars: Chars, tokens: &[String]) -> u32 {
     let mut frag = String::new();
     for c in chars {
         match c.to_digit(10) {

@@ -4,13 +4,12 @@ use std::env;
 
 pub fn validate_args<F>(f: F)
 where
-    F: FnOnce(u32, u8) -> (),
+    F: FnOnce(u32, u8),
 {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 3 {
         println!("Usage cargo run -- <year> <day>");
-        return;
     } else {
         let year = args[1].parse::<u32>().map_err(|_| "Year must be a number");
 
