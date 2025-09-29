@@ -96,7 +96,7 @@ fn part_b() -> u32 {
     start_points_race(&mut racers, 2503)
 }
 
-fn start_distance_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
+fn start_distance_race(racers: &mut [Reindeer], seconds: usize) -> u32 {
     let mut time: usize = 0;
     while time < seconds {
         // Must use explicit mutable iterator that does a reborrow instead of relying on
@@ -123,7 +123,7 @@ fn start_distance_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
         .fold(0, |farthest, r| u32::max(farthest, r.distance))
 }
 
-fn start_points_race(racers: &mut Vec<Reindeer>, seconds: usize) -> u32 {
+fn start_points_race(racers: &mut [Reindeer], seconds: usize) -> u32 {
     let mut time: usize = 0;
     let mut farthest: u32 = 0;
     while time < seconds {

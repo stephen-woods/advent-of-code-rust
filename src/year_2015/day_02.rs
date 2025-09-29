@@ -68,7 +68,7 @@ pub fn run() {
 
 fn part_a() -> u32 {
     let mut ret = 0;
-    let presents = Present::all();
+    let presents = Present::all(INPUT_A);
     for present in presents {
         let sf = present.surface_area() + present.extra();
         ret += sf
@@ -78,7 +78,7 @@ fn part_a() -> u32 {
 
 fn part_b() -> u32 {
     let mut ret = 0;
-    let presents = Present::all();
+    let presents = Present::all(INPUT_A);
     for present in presents {
         let ribbon = present.ribbon_to_wrap() + present.ribbon_for_bow();
         ret += ribbon
@@ -101,9 +101,9 @@ impl Present {
         }
     }
 
-    fn all() -> Vec<Present> {
+    fn all(input: &str) -> Vec<Present> {
         let mut presents: Vec<Present> = vec![];
-        let lines = INPUT_A.split("\n");
+        let lines = input.split("\n");
         for line in lines {
             let dims: Vec<&str> = line.split("x").collect();
             let present = Present::new(
@@ -122,8 +122,7 @@ impl Present {
 
     fn extra(&self) -> u32 {
         let min = cmp::min(self.get_lw(), self.get_wh());
-        let min = cmp::min(self.get_lh(), min);
-        min
+        cmp::min(self.get_lh(), min)
     }
 
     fn get_lw(&self) -> u32 {

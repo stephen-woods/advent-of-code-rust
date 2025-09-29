@@ -74,7 +74,7 @@ fn part_a() -> i32 {
             _ => (),
         }
     }
-    return floor;
+    floor
 }
 
 fn part_b() -> i32 {
@@ -91,7 +91,7 @@ fn part_b() -> i32 {
             break;
         }
     }
-    return pos;
+    pos
 }
 
 const INPUT_A: &str = indoc! {r#"

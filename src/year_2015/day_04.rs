@@ -63,7 +63,7 @@ fn mine(prefix: &str) -> u64 {
         let result = format!("{:x}", result_as_bytes);
         found = result.starts_with(prefix);
     }
-    return x;
+    x
 }
 
 const INPUT_A: &str = "yzbqklnj";

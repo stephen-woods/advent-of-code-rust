@@ -99,8 +99,7 @@ fn str_to_u64(s: &str, radix: u64, ascii_base: u8) -> u64 {
     // Assuming each character is an ASCII character byte, simply subtract all of the
     // characters before the ascii_base. Fold over each number to build up number.
     s.bytes()
-        .into_iter()
-        .map(|c| (c as u8) - ascii_base)
+        .map(|c| c - ascii_base)
         .fold(zero, |a, x| (a * radix) + u64::from(x))
 }
 
@@ -109,8 +108,8 @@ fn ascii_char_to_radix26(s: &str) -> u8 {
         panic!("String is not a single ASCII char")
     }
 
-    let c = s.as_bytes().get(0).unwrap();
-    (*c as u8) - 97
+    let c = s.as_bytes().first().unwrap();
+    c - 97
 }
 
 fn u64_to_reverse_digits(n: u64, radix: u64) -> Vec<u8> {
@@ -120,7 +119,7 @@ fn u64_to_reverse_digits(n: u64, radix: u64) -> Vec<u8> {
     let mut num: u64 = n;
     loop {
         let m: u8 = (num % radix) as u8;
-        num = num / radix;
+        num /= radix;
 
         ret.push(m);
         if num == 0 {
@@ -130,17 +129,17 @@ fn u64_to_reverse_digits(n: u64, radix: u64) -> Vec<u8> {
     ret
 }
 
-fn reverse_digits_to_string(vd: &Vec<u8>) -> String {
-    vd.into_iter()
+fn reverse_digits_to_string(vd: &[u8]) -> String {
+    vd.iter()
         .rev()
         .map(|x| char::from_u32(u32::from(*x) + 97).unwrap())
         .collect()
 }
 
-fn check_contains_straight(vd: &Vec<u8>, count: i32) -> bool {
+fn check_contains_straight(vd: &[u8], count: i32) -> bool {
     let mut c = 1;
     let mut last: u8 = u8::MAX - 1;
-    for x in vd.into_iter().rev() {
+    for x in vd.iter().rev() {
         if *x == last + 1 {
             c += 1;
             if c == count {
@@ -154,13 +153,13 @@ fn check_contains_straight(vd: &Vec<u8>, count: i32) -> bool {
     c == count
 }
 
-fn check_consecutive_duplicates(vd: &Vec<u8>, num_dupes: i32) -> bool {
+fn check_consecutive_duplicates(vd: &[u8], num_dupes: i32) -> bool {
     // Keep a count of how many duplicates we have encountered.
     let mut dupes = 0;
 
     // Set the last element to something invalid
     let mut last: u8 = u8::MAX - 1;
-    for x in vd.into_iter().rev() {
+    for x in vd.iter().rev() {
         if *x == last {
             // If the current element matches the last one, we have a duplicate. Reset the last to
             // invalid so we do not count overlapping duplicates.
@@ -176,12 +175,12 @@ fn check_consecutive_duplicates(vd: &Vec<u8>, num_dupes: i32) -> bool {
     dupes == num_dupes
 }
 
-fn check_contains_valid(vd: &Vec<u8>, sorted_invalids: &Vec<u8>) -> bool {
+fn check_contains_valid(vd: &[u8], sorted_invalids: &[u8]) -> bool {
     if sorted_invalids.is_empty() {
         return true;
     }
 
-    for x in vd.into_iter() {
+    for x in vd.iter() {
         if sorted_invalids.binary_search(x).is_ok() {
             return false;
         }

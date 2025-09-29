@@ -127,7 +127,7 @@ fn calc_distance(points: &Vec<&str>, distances: &HashMap<(String, String), u32>)
     let mut total = 0;
     for ab in points.windows(2) {
         let k = &(ab[0].to_string(), ab[1].to_string());
-        let d = distances.get(k).unwrap_or(&0).clone();
+        let d = distances.get(k).unwrap_or(&0);
         total += d;
     }
     total
@@ -167,9 +167,9 @@ impl DayRegex {
             let distance = d.parse::<u32>().unwrap();
 
             Distance {
-                point_a: point_a,
-                point_b: point_b,
-                distance: distance,
+                point_a,
+                point_b,
+                distance,
             }
         })
     }

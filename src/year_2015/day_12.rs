@@ -75,7 +75,7 @@ fn walk_numbers(v: &Value) -> i64 {
 
     match v {
         Value::Number(num) => num.as_i64().unwrap(),
-        Value::Array(arr) => arr.into_iter().map(walk_numbers).sum(),
+        Value::Array(arr) => arr.iter().map(walk_numbers).sum(),
         Value::Object(obj) => obj.into_iter().map(kv_walk_numbers).sum(),
         _ => 0,
     }
@@ -95,7 +95,7 @@ fn walk_numbers_non_red(v: &Value) -> i64 {
 
     match v {
         Value::Number(num) => num.as_i64().unwrap(),
-        Value::Array(arr) => arr.into_iter().map(walk_numbers_non_red).sum(),
+        Value::Array(arr) => arr.iter().map(walk_numbers_non_red).sum(),
         Value::Object(obj) => {
             if obj.into_iter().any(kv_is_red) {
                 0
