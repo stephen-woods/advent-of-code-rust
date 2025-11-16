@@ -101,7 +101,6 @@ fn part_a() -> u32 {
     sum
 }
 
-
 fn part_b() -> u32 {
     let mut sum = 0u32;
 
@@ -2183,14 +2182,19 @@ three6blrfsgdqsxgkbqj3
 eight1eighteight8
 8four419eighteight1bpv"#};
 
-#[test]
-fn test_a() {
-    let answer = part_a();
-    assert_eq!(54304, answer);
-}
+#[cfg(test)]
+mod test {
+    use crate::year_2023::day_01::{part_a, part_b};
 
-#[test]
-fn test_b() {
-    let answer = part_b();
-    assert_eq!(54418, answer);
+    #[test]
+    fn test_a() {
+        let answer = part_a();
+        assert_eq!(54304, answer);
+    }
+
+    #[test]
+    fn test_b() {
+        let answer = part_b();
+        assert_eq!(54418, answer);
+    }
 }
