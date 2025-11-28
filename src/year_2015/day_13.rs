@@ -30,11 +30,13 @@
 /// 83, Alice gains 54). Finally, seat Carol, who sits next to Bob (Carol gains 60, Bob
 /// loses 7) and David (Carol gains 55, David gains 41). The arrangement looks like this:
 ///
+/// ```ignore
 ///      +41 +46
 /// +55   David    -2
 /// Carol       Alice
 /// +60    Bob    +54
 ///      -7  +83
+/// ```
 /// After trying every other seating arrangement in this hypothetical scenario, you find
 /// that this one is the most optimal, with a total change in happiness of 330.
 ///

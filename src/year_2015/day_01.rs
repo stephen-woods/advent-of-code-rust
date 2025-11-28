@@ -98,7 +98,7 @@ const INPUT_A: &str = indoc! {r#"
 "#};
 
 #[cfg(test)]
-mod tests {
+mod test {
     use crate::year_2015::day_01::{part_a, part_b};
 
     #[test]
