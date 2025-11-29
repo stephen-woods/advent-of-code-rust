@@ -26,6 +26,7 @@ pub fn run(year: u32, day: u8) {
         (2016, 1) => year_2016::day_01::run(),
         (2016, 2) => year_2016::day_02::run(),
         (2016, 3) => year_2016::day_03::run(),
+        (2016, 4) => year_2016::day_04::run(),
         (2023, 1) => year_2023::day_01::run(),
         _ => println!("--- Day {}: Not implemented!", day),
     }
