@@ -4,6 +4,7 @@ pub mod command_line;
 mod year_2015;
 mod year_2016;
 mod year_2023;
+mod year_2025;
 
 pub fn run(year: u32, day: u8) {
     println!("Advent of Code {} in Rust!", year);
@@ -29,6 +30,7 @@ pub fn run(year: u32, day: u8) {
         (2016, 4) => year_2016::day_04::run(),
         (2016, 5) => year_2016::day_05::run(),
         (2023, 1) => year_2023::day_01::run(),
+        (2025, 1) => year_2025::day_01::run(),
         _ => println!("--- Day {}: Not implemented!", day),
     }
 }
